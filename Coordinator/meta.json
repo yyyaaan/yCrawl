@@ -1,0 +1,62 @@
+{
+    "date-range-min": 28,
+    "date-range-max": 343,
+    "active-qr-config": {
+        "center-days": 15,
+        "origins": "HEL,AMS,OSL",
+        "destinations": "SYD,MEL,CBR",
+        "desc": "QR shows a two-week calendar, so define centering day"
+    },
+    "active-hotel-config": {
+        "hotel-nights": [
+            "7,Pullman Maldives",
+            "3,Meridien Pines",
+            "4,Meridien Pines",
+            "3,Four Seasons Bora",
+            "4,Four Seasons Bora",
+            "3,Regis Bora",
+            "4,Regis Bora"
+        ]
+    },
+    "desc-meta": [
+        "DO NOT CHANGE META for job configuration"
+    ],
+    "meta-url": {
+        "pullman maldives": "9924",
+        "sofitel moorea": "0566",
+        "mercure nadi": "5930",
+        "regis bora": "countryName=PF&destinationAddress.city=Bora+Bora&destinationAddress.longitude=-151.696515&destinationAddress.latitude=-16.486419",
+        "meridien bora": "countryName=PF&destinationAddress.city=Bora+Bora&destinationAddress.longitude=-151.736641&destinationAddress.latitude=-16.497324",
+        "meridien pines": "destinationAddress.city=Isle+of+Pines%2C+New+Caledonia",
+        "marriott fiji": "destinationAddress.city=Fiji",
+        "sheraton tokoriki": "destinationAddress.city=Tokoriki+Island%2C+Fiji",
+        "four seasons bora": "BOB462",
+        "hilton moorea": "PPTMLHH",
+        "conrad bora": "PPTBNCI",
+        "desc": "this case-insenitive list contains hotel meta for searching"
+    },
+    "meta-iata": {
+        "HEL": "Helsinki",
+        "ARN": "Stockholm",
+        "TLL": "Tallinn",
+        "CPH": "Copenhagen",
+        "OSL": "Oslo",
+        "BRU": "Brussels",
+        "WAW": "Warsaw",
+        "GOT": "Gotenburg",
+        "AMS": "Amsterdam",
+        "SYD": "Sydney",
+        "CBR": "Canberra",
+        "ADL": "Adelaide",
+        "MEL": "Melbourne",
+        "BNE": "Brisbane",
+        "PER": "Perth",
+        "NAN": "Nadi",
+        "NOU": "Noumea",
+        "PVG": "Shanghai",
+        "HND": "Haneda",
+        "SIN": "Singapore",
+        "TYO": "Tokyo",
+        "HKG": "Hong Kong"
+    }
+}
