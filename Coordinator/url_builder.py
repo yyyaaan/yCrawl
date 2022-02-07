@@ -1,8 +1,17 @@
-from datetime import timedelta, date
+from datetime import timedelta
 from config import *
 
+
 def url_qr(from1, to1, from2, to2, departure_date, layover_days):
-    return f'{from1}-{to1} and {from2}-{to2} on {departure_date.strftime("%d-%b-%Y")} for {layover_days}'
+
+    return_date = departure_date + timedelta(days=layover_days)
+    return f'''
+    https://booking.qatarairways.com/nsp/views/showBooking.action?widget=MLC
+    &searchType=S&bookingClass=B&minPurTime=null&tripType=M&allowRedemption=Y&selLang=EN&adults=1&children=0&infants=0&teenager=0&ofw=0&promoCode=
+    &fromStation={from1}&toStation={to1}&departingHiddenMC={departure_date.strftime("%d-%b-%Y")}&departing={departure_date.strftime("%Y-%m-%d")}
+    &fromStation={from2}&toStation={to2}&departingHiddenMC={return_date.strftime("%d-%b-%Y")}&departing={return_date.strftime("%Y-%m-%d")}
+    '''.replace("\n", "").replace("\r", "").replace(" ", "")
+
 
 def url_hotel(checkin, nights, hotel):
 
@@ -15,11 +24,7 @@ def url_hotel(checkin, nights, hotel):
         print(META_URL.keys)
         return "ERROR"
 
-    # type check and compute check out date
-    if type(checkin) == type(date(2022, 1, 1)):
-        checkout = checkin + timedelta(days=nights)
-    else:
-        return "ERROR"
+    checkout = checkin + timedelta(days=nights)
 
     # use hotel_code's length to determine hotel group
     if len(code) == 4:
@@ -30,8 +35,3 @@ def url_hotel(checkin, nights, hotel):
         return f'https://www.hilton.com/en/book/reservation/rooms/?ctyhocn={code}&arrivalDate={checkin.strftime("%Y-%m-%d")}&departureDate={checkout.strftime("%Y-%m-%d")}&room1NumAdults=2&displayCurrency=EUR'
     if len(code) > 20:
         return f'https://www.marriott.com/search/default.mi?roomCount=1&numAdultsPerRoom=2&fromDate={checkin.strftime("%m/%d/%Y")}&toDate={checkout.strftime("%m/%d/%Y")}&{code}'
-
-
-def test_area():
-    for this_key in ['Conrad Bora', "Pullman Maldives"]:
-        print(url_hotel(date(2022, 9, 1), 3, this_key))

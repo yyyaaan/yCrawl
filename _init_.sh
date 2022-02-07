@@ -36,10 +36,6 @@ apt install -y \
     libxtst6 \
     xdg-utils
 
-npm install puppeteer
+npm install
 
-python3 -m pip install \
-    requests \
-    bs4 \
-    pandas
-s
+pip install -r requirements.txt
