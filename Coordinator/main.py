@@ -1,13 +1,34 @@
-from url_builder import url_hotel, url_qr
 from config import *
+from url_builder import url_hotel, url_qr
+from scan_completion import get_keys_status
 from datetime import datetime
 from random import shuffle
-
+from os import getcwd
 
 def assign_seq(identifier):
     global NN
     NN += 1
     return f"{DATE_STR}_{identifier}{NN:04}"
+
+
+def publish_jobs(content, type=RUN_MODE):
+    
+    out_txt = "\n".join(content) if len(content) > 1 else content
+
+    if type == "local":
+        # local mode will save a file to parent directory
+        path_self = getcwd().split("/")
+        path_self.pop()
+        path_self.append("published_jobs.txt")
+        
+        with open("/".join(path_self), "w") as f:
+            f.write(out_txt)
+    else:
+        ######### TO BE IMPLEMENTED #########
+        print(out_txt)
+
+    return True
+
 
 
 def fetch_all_urls(shuffled=True):
@@ -40,10 +61,16 @@ def fetch_all_urls(shuffled=True):
     return all_urls
 
 
+def main():
+    urls_all = fetch_all_urls()
+    keys_done, keys_forfeit, keys_error = get_keys_status(RUN_MODE)
 
-all_urls = fetch_all_urls()
+    urls_todo = [x for x in urls_all if x['key'] not in (keys_done + keys_forfeit)]
+    print(f"Planned={len(urls_all)}, Completion={len(keys_done)}, Error={len(keys_forfeit)}, Todo={len(urls_todo)}")
+    
+    bash_nodes = ['node node_handler.js "' + x['key']+ '" "' + x['url'] + '"' for x in urls_todo]
+    publish_jobs(bash_nodes)
 
 
-bash_nodes = ['node node_handler.js "' + x['key']+ '" "' + x['url'] + '"' for x in all_urls]
-
-print("\n".join(bash_nodes))
+if __name__ == "__main__":
+    main()
