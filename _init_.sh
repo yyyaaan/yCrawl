@@ -1,6 +1,8 @@
-# /bin/bash init.sh
+# /bin/bash
 # this is a bash script, changes needed for container
-# to install apt, node and python packages
+# to install apt and node dependencies. There seem no Python package needed.
+
+apt update
 
 apt install -y \
     fonts-liberation \
@@ -38,4 +40,6 @@ apt install -y \
 
 npm install
 
-pip install -r requirements.txt
+gcloud init --console-only
+
+# pip install -r requirements.txt

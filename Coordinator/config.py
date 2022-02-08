@@ -2,6 +2,10 @@ from json import load
 from os.path import exists
 from datetime import date, timedelta
 
+global RUN_MODE
+global LIMIT_RETRY
+RUN_MODE = "local"
+LIMIT_RETRY = 2
 
 global CONTROL_ID
 global DATE_STR
@@ -10,7 +14,7 @@ global META_IATA
 global HOTEL_CONFIG
 global QATAR_CONFIG
 
-global ALL_SETTINGS
+# global ALL_SETTINGS
 
 # control_id is either 1, 2, 3 or 0 defines a quarter of all tasks
 DATE_STR = date.today().strftime("%Y%m%d")
