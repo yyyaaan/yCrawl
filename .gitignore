@@ -1,4 +1,5 @@
 cache/
+published_jobs.txt
 
 # includes both Node and Python template
 

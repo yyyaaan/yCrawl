@@ -1,5 +1,9 @@
 {    
-    "date-range-min": 28,
+    "scope": "test",
+    "max-retry": 2,
+    "desc-scope": "running mode keyword: local, test or prod",
+    "date-range-min-x": 28,
+    "date-range-min": 336,
     "date-range-max": 343,
     "active-qr-config": {
         "center-days": 15,
@@ -16,6 +20,8 @@
             "4,Four Seasons Bora",
             "3,Regis Bora",
             "4,Regis Bora"
+        ],
+        "temporarily-deactivated":[
         ]
     },
     "desc-meta": [

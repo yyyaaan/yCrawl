@@ -13,9 +13,9 @@ def assign_seq(identifier):
 
 def publish_jobs(content, type=RUN_MODE):
     
-    out_txt = "\n".join(content) if len(content) > 1 else content
+    out_txt = content if isinstance(content, str) else "\n".join(content)
 
-    if type == "local":
+    if type in ["local", "test"]:
         # local mode will save a file to parent directory
         path_self = getcwd().split("/")
         path_self.pop()
@@ -23,11 +23,8 @@ def publish_jobs(content, type=RUN_MODE):
         
         with open("/".join(path_self), "w") as f:
             f.write(out_txt)
-    else:
-        ######### TO BE IMPLEMENTED #########
-        print(out_txt)
 
-    return True
+    return out_txt
 
 
 
@@ -61,16 +58,16 @@ def fetch_all_urls(shuffled=True):
     return all_urls
 
 
-def main():
+def call_coordinator():
     urls_all = fetch_all_urls()
     keys_done, keys_forfeit, keys_error = get_keys_status(RUN_MODE)
 
     urls_todo = [x for x in urls_all if x['key'] not in (keys_done + keys_forfeit)]
     print(f"Planned={len(urls_all)}, Completion={len(keys_done)}, Error={len(keys_forfeit)}, Todo={len(urls_todo)}")
     
-    bash_nodes = ['node node_handler.js "' + x['key']+ '" "' + x['url'] + '"' for x in urls_todo]
-    publish_jobs(bash_nodes)
+    bash_nodes = [f'node node_handler.js {x["key"]} "' + x['url'] + '"' for x in urls_todo]
+    return publish_jobs(bash_nodes)
 
 
 if __name__ == "__main__":
-    main()
+    call_coordinator()

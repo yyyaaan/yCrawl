@@ -1,6 +1,7 @@
 from config import *
 from os import listdir, getcwd
-
+from datetime import date
+from google.cloud import storage
 
 def get_keys_status(type=RUN_MODE):
     
@@ -12,9 +13,9 @@ def get_keys_status(type=RUN_MODE):
 
         files_in_storage = [x for x in listdir(cache_folder) if x.endswith(".pp")]
     else:
-        ######### TO BE IMPLEMENTED #########
-        files_in_storage = []
-
+        gcp_client = storage.Client()
+        bucket = gcp_client.get_bucket("ycrawl-data")
+        files_in_storage = [x.name for x in bucket.list_blobs(prefix=f'{RUN_MODE}/{date.today().strftime("%Y/%m/%d")}')]
     
 
     keys_completed = [DATE_STR + "_" + x.split("_")[1] for x in files_in_storage if not x.endswith("ERR.pp")]
@@ -24,7 +25,3 @@ def get_keys_status(type=RUN_MODE):
     keys_forfeit = list( dict.fromkeys(keys_forfeit) ) # remove dup
     
     return keys_completed, keys_forfeit, keys_error
-
-
-
-

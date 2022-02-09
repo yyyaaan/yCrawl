@@ -2,21 +2,29 @@ from os import system
 from time import sleep
 from random import random
 from datetime import datetime
+from requests import get as urlget
 
-from scipy import rand
+RUN_MODE = "test"
+COORDINATOR_ENDPOINT = "https://mirror.yan.fi/yCrawl-Coordinator/published_jobs.txt"
 
+def get_job_list(type=RUN_MODE):
 
-def get_job_list(type="local"):
-    if type == "local":
+    if type in ["local", "test"]:
         f = open("published_jobs.txt", "r")
         jobs = f.read().split("\n")
-        f.close()
-    
+        f.close()    
+    else:
+        res = urlget(COORDINATOR_ENDPOINT)
+        jobs = res.text.split("\n")
+
+
+    jobs = [x for x in jobs if x != ""]
     return jobs
 
 
 def printT(str):
     print(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  " + str)
+    return True
 
 
 def run_with_delay(command_list, delay_factor=10):
@@ -35,13 +43,16 @@ def run_with_delay(command_list, delay_factor=10):
 
 
 def main():
-    jobs = get_job_list("local")
+    jobs = get_job_list(RUN_MODE)
     
     # preemtible safe operation, can be stopped in the middle
-    is_completed = run_with_delay(jobs[100:111:2])
+    is_completed = run_with_delay(jobs)
 
     # preemtible exit wont' reach here, only full completion reach, do samething as early stop
-    system("sh _shutdown_.sh")
+    if is_completed:
+        sleep(90)
+        system("sh _shutdown_.sh")
+
 
 
 if __name__ == "__main__":
