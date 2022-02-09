@@ -1,5 +1,5 @@
+from . config import *
 from datetime import timedelta
-from config import *
 
 
 def url_qr(from1, to1, from2, to2, departure_date, layover_days):
@@ -14,8 +14,6 @@ def url_qr(from1, to1, from2, to2, departure_date, layover_days):
 
 
 def url_hotel(checkin, nights, hotel):
-
-    global META_URL
 
     # find hotel code
     if hotel.lower() in META_URL.keys():

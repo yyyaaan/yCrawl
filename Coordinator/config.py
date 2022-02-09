@@ -10,6 +10,7 @@ global META_URL
 global META_IATA
 global HOTEL_CONFIG
 global QATAR_CONFIG
+global GCP_JSON_PATH
 
 # global ALL_SETTINGS
 
@@ -18,7 +19,13 @@ DATE_STR = date.today().strftime("%Y%m%d")
 CONTROL_ID = ((date.today() - date(1970,1,1)).days) % 4
 
 # load in the meta.json
-meta_path = 'meta.json' if exists('meta.json') else './Coordinator/meta.json'
+if exists('meta.json'): 
+    meta_path = 'meta.json'
+elif exists('./Coordinator/meta.json'): 
+    meta_path = './Coordinator/meta.json'
+else:
+    meta_path = './yCrawl/Coordinator/meta.json'
+
 with open(meta_path, 'r') as f:
     ALL_SETTINGS = load(f)
 
