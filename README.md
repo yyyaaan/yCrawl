@@ -13,7 +13,7 @@ __DataProcessor__ is the pipeline to perform ETL.
 
 ## Environment
 
-Configured environments for `export GOOGLE_APPLICATION_CREDENTIALS="/Users/pannnyan/Documents/.credentials/gcp.json"`
+Configured environments for `export GOOGLE_APPLICATION_CREDENTIALS="/Users/pannnyan/Documents/.credentials/gcp.json"` (example on local)
 
 Note: shutdown and startup script is installed in compute instance, and manage externally
 

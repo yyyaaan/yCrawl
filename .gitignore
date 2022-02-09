@@ -1,6 +1,5 @@
-cache/
-published_jobs.txt
-
+Worker/cache/
+.DS_Store
 # includes both Node and Python template
 
 # Byte-compiled / optimized / DLL files
@@ -265,3 +264,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+.DS_Store
