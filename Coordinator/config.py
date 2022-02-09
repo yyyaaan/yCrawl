@@ -4,9 +4,6 @@ from datetime import date, timedelta
 
 global RUN_MODE
 global LIMIT_RETRY
-RUN_MODE = "local"
-LIMIT_RETRY = 2
-
 global CONTROL_ID
 global DATE_STR
 global META_URL
@@ -25,7 +22,8 @@ meta_path = 'meta.json' if exists('meta.json') else './Coordinator/meta.json'
 with open(meta_path, 'r') as f:
     ALL_SETTINGS = load(f)
 
-# defines hotel url code
+LIMIT_RETRY = ALL_SETTINGS['max-retry']
+RUN_MODE = ALL_SETTINGS['scope']
 META_URL = ALL_SETTINGS['meta-url']
 META_IATA = ALL_SETTINGS['meta-iata']
 
