@@ -6,45 +6,24 @@ from random import shuffle
 from os import getcwd, listdir
 
 
-
 def get_keys_status(type=RUN_MODE):
-    
-    # scan saved files, differ from local and server
-    if type == 'local':
-        cache_folder = getcwd().split("/")
-        cache_folder[len(cache_folder)-1] = "cache"
-        cache_folder = "/".join(cache_folder)
 
-        files_in_storage = [x for x in listdir(cache_folder) if x.endswith(".pp")]
-    else:
-        gcp_client = storage.Client()
-        bucket = gcp_client.get_bucket("ycrawl-data")
-        files_in_storage = [x.name for x in bucket.list_blobs(prefix=f'{RUN_MODE}/{date.today().strftime("%Y/%m/%d")}')]
-    
+    # LOCAL files_in_storage = [x for x in listdir(cache_folder) if x.endswith(".pp")]
+    gcp_client = storage.Client()
+    bucket = gcp_client.get_bucket("ycrawl-data")
+    files_in_storage = [x.name for x in bucket.list_blobs(
+        prefix=f'{RUN_MODE}/{date.today().strftime("%Y/%m/%d")}')]
 
-    keys_completed = [DATE_STR + "_" + x.split("_")[1] for x in files_in_storage if not x.endswith("ERR.pp")]
-    # error keys may have duplicates, LIMIT_RETRY to remove it 
-    keys_error = [DATE_STR + "_" + x.split("_")[1] for x in files_in_storage if x.endswith("ERR.pp")]
-    keys_forfeit = [x for x in keys_error if keys_error.count(x) >= LIMIT_RETRY]
-    keys_forfeit = list( dict.fromkeys(keys_forfeit) ) # remove dup
-    
+    keys_completed = [
+        DATE_STR + "_" + x.split("_")[1] for x in files_in_storage if not x.endswith("ERR.pp")]
+    # error keys may have duplicates, LIMIT_RETRY to remove it
+    keys_error = [DATE_STR + "_" + x.split("_")[1]
+                  for x in files_in_storage if x.endswith("ERR.pp")]
+    keys_forfeit = [
+        x for x in keys_error if keys_error.count(x) >= LIMIT_RETRY]
+    keys_forfeit = list(dict.fromkeys(keys_forfeit))  # remove dup
+
     return keys_completed, keys_forfeit, keys_error
-
-
-def publish_jobs(content, type=RUN_MODE):
-    
-    out_txt = content if isinstance(content, str) else "\n".join(content)
-
-    if type in ["local", "test"]:
-        # local mode will save a file to parent directory
-        path_self = getcwd().split("/")
-        path_self.pop()
-        path_self.append("published_jobs.txt")
-        
-        with open("/".join(path_self), "w") as f:
-            f.write(out_txt)
-
-    return out_txt
 
 
 def assign_seq(identifier):
@@ -87,11 +66,15 @@ def call_coordinator():
     urls_all = fetch_all_urls()
     keys_done, keys_forfeit, keys_error = get_keys_status(RUN_MODE)
 
-    urls_todo = [x for x in urls_all if x['key'] not in (keys_done + keys_forfeit)]
-    print(f"Planned={len(urls_all)}, Completion={len(keys_done)}, Error={len(keys_forfeit)}, Todo={len(urls_todo)}")
-    
-    bash_nodes = [f'node node_handler.js {x["key"]} "' + x['url'] + '"' for x in urls_todo]
-    return publish_jobs(bash_nodes)
+    urls_todo = [x for x in urls_all if x['key']
+                 not in (keys_done + keys_forfeit)]
+    print(
+        f"Planned={len(urls_all)}, Completion={len(keys_done)}, Error={len(keys_forfeit)}, Todo={len(urls_todo)}")
+
+    bash_nodes = [
+        f'node node_handler.js {x["key"]} "' + x['url'] + '"' for x in urls_todo]
+
+    return "\n".join(bash_nodes)
 
 
 if __name__ == "__main__":

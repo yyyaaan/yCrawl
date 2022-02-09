@@ -1,4 +1,4 @@
-from json import load
+from json import loads
 from requests import get
 from datetime import date, timedelta
 
@@ -20,7 +20,7 @@ CONTROL_ID = ((date.today() - date(1970,1,1)).days) % 4
 
 # load in the meta.json from github raw (same source as root)
 live_meta = get("https://raw.githubusercontent.com/yyyaaan/yCrawl/main/meta.json")
-ALL_SETTINGS = load(live_meta.text)
+ALL_SETTINGS = loads(live_meta.text)
 
 LIMIT_RETRY = ALL_SETTINGS['max-retry']
 RUN_MODE = ALL_SETTINGS['scope']
