@@ -2,12 +2,11 @@
 # managed in compute instance, config path carefully
 # further reference: https://cloud.google.com/compute/docs/instances/create-use-preemptible#handle_preemption
 
-echo Shutdown noticed! $(date +"%c")
-
+gcloud logging write y_simple_log 'Shutdown noticed! $(date +"%c")'
 
 ### configure path and mode carefully
 runmode=test
-cd ./cache
+cd /home/yan/yCrawl/Worker/cache
 
 ### send to cloud storage ###
 gsutil  -m \
@@ -21,4 +20,7 @@ gsutil  -m \
 ### archive to zip, -m remove files, -q quiet
 zip -q -m $(date +"%Y%m%d_%H%M%S.zip") *.pp
 
-echo Shutdown ready! Uploading arhiving succeeded on $(date +"%c")
+gcloud logging write y_simple_log 'Shutdown ready! Uploading arhiving succeeded on $(date +"%c")'
+
+### really power off
+sudo systemctl poweroff

@@ -3,7 +3,6 @@ from . url_builder import url_hotel, url_qr
 from google.cloud import storage
 from datetime import date
 from random import shuffle
-from os import getcwd, listdir
 
 
 def get_keys_status(type=RUN_MODE):

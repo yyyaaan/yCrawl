@@ -13,10 +13,20 @@ __DataProcessor__ is the pipeline to perform ETL.
 
 ## Environment
 
-Configured environments for `export GOOGLE_APPLICATION_CREDENTIALS="/Users/pannnyan/Documents/.credentials/gcp.json"` (example on local)
+Configured environments for `conda env config vars set GOOGLE_APPLICATION_CREDENTIALS="/Users/pannnyan/Documents/.credentials/gcp.json"` (example on local). Fine-tuning default worker service account is assumed on cloud deployment.
 
-Note: shutdown and startup script is installed in compute instance, and manage externally
+Note: [Startup shutdown scripts are critical for preemtible instances](https://cloud.google.com/compute/docs/shutdownscript)
+
 
 ## Other concpets
 - appdata.json defines tasks should be done; this file is expected to be changed a few times a year
-- worker Only use simple infrastructure with Node+Puppeteer and Python. This is to be configured in a preemptible instance.§
+
+
+## Deployment Checklist
+
+- Run `__init__.sh` manually
+- Check path and python3, nodejs versions
+- Scripts for `/home/yan/yCrawl/Worker/_startup_.sh` and `/home/yan/yCrawl/Worker/_shutdown_.sh`
+
+Startup and shutdown script to correct auth (default service account)
+
