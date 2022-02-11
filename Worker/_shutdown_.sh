@@ -1,15 +1,16 @@
 #! /bin/bash
-# managed in compute instance, config path carefully
-# further reference: https://cloud.google.com/compute/docs/instances/create-use-preemptible#handle_preemption
+# will not do logging if called with parameter
 
-gcloud logging write y_simple_log "Shutdown noticed for $VMID!"
+if [ $# -eq 0 ]
+  then gcloud logging write y_simple_log "Shutdown noticed for $VMID!" --severity="INFO" &> silent.log
+fi
 
 ### configure path and mode carefully
 runmode=test
 cd /home/yan/yCrawl/Worker/cache
 
-### send to cloud storage ###
-gsutil  -m \
+### send to cloud storage -q quite -m multitasking
+gsutil  -q -m \
         -h "Content-Type:text/html" \
         -h "Content-Encoding:gzip" \
         cp -z pp \
@@ -20,4 +21,6 @@ gsutil  -m \
 ### archive to zip, -m remove files, -q quiet
 zip -q -m $(date +"%Y%m%d_%H%M%S.zip") *.pp
 
-gcloud logging write y_simple_log "Shutdown ready! Uploading arhiving succeeded for $VMID."
+if [ $# -eq 0 ]
+  then gcloud logging write y_simple_log "Shutdown ready! Uploading arhiving succeeded for $VMID." --severity="INFO"
+fi
