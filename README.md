@@ -26,7 +26,8 @@ Note: [Startup shutdown scripts are critical for preemtible instances](https://c
 
 - Run `__init__.sh` manually
 - Check path and python3, nodejs versions
-- Scripts for `/home/yan/yCrawl/Worker/_startup_.sh` and `/home/yan/yCrawl/Worker/_shutdown_.sh`
+- Grant bucket access to default service account
+- Scripts settings in metadata `#! /bin/bash sudo sh /home/yan/yCrawl/Worker/_shutdown_.sh`
 
 Startup and shutdown script to correct auth (default service account)
 

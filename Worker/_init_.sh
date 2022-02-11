@@ -1,8 +1,6 @@
 #!/bin/bash
-# Entry point is always /home/yan/yCrawl
 # dependencies installer (apt-get, pupeteer/nodejs )
 # this is a bash script for Ubuntu, changes needed for other environment
-
 
 # add new NodeJS to repo, will run apt-update automatically
 curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
@@ -43,7 +41,8 @@ sudo apt-get install -y \
     libxss1 \
     libxtst6 \
     nodejs \
-    xdg-utils
+    xdg-utils \
+    zip
 
 
 git clone http://github.com/yyyaaan/yCrawl
@@ -57,4 +56,4 @@ npm install
 # pip install -r requirements.txt
 
 # cache directory
-mkdir ./Worker/cache
+mkdir cache

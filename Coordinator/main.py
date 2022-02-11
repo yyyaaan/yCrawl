@@ -67,8 +67,7 @@ def call_coordinator():
 
     urls_todo = [x for x in urls_all if x['key']
                  not in (keys_done + keys_forfeit)]
-    print(
-        f"Planned={len(urls_all)}, Completion={len(keys_done)}, Error={len(keys_forfeit)}, Todo={len(urls_todo)}")
+    #print(f"Planned={len(urls_all)}, Completion={len(keys_done)}, Error={len(keys_forfeit)}, Todo={len(urls_todo)}")
 
     bash_nodes = [
         f'node node_handler.js {x["key"]} "' + x['url'] + '"' for x in urls_todo]

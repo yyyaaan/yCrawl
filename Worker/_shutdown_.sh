@@ -1,8 +1,8 @@
-#!/bin/bash
+#! /bin/bash
 # managed in compute instance, config path carefully
 # further reference: https://cloud.google.com/compute/docs/instances/create-use-preemptible#handle_preemption
 
-gcloud logging write y_simple_log 'Shutdown noticed! $(date +"%c")'
+gcloud logging write y_simple_log 'Shutdown noticed for $HOSTNAME!'
 
 ### configure path and mode carefully
 runmode=test
@@ -20,7 +20,7 @@ gsutil  -m \
 ### archive to zip, -m remove files, -q quiet
 zip -q -m $(date +"%Y%m%d_%H%M%S.zip") *.pp
 
-gcloud logging write y_simple_log 'Shutdown ready! Uploading arhiving succeeded on $(date +"%c")'
+gcloud logging write y_simple_log 'Shutdown ready! Uploading arhiving succeeded for $HOSTNAME.'
 
 ### really power off
-sudo systemctl poweroff
+systemctl poweroff
