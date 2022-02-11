@@ -44,7 +44,6 @@ sudo apt-get install -y \
     xdg-utils \
     zip
 
-
 git clone http://github.com/yyyaaan/yCrawl
 
 cd ~/yCrawl/Worker
@@ -52,8 +51,8 @@ cd ~/yCrawl/Worker
 # package.json
 npm install
 
-# python seems no extra package needed
-# pip install -r requirements.txt
-
 # cache directory
 mkdir cache
+
+# register a global variable for logging convenience
+echo "VMID=$HOSTNAME" | sudo tee -a /etc/environment

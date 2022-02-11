@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer')
 const filesave = require('fs')
 
-const DEBUG_MODE = true
+const DEBUG_MODE = false
 const the_key = process.argv[2]
 const the_url = process.argv[3]
 

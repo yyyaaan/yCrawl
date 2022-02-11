@@ -1,4 +1,4 @@
-from os import system
+from os import system, getenv
 from time import sleep
 from random import random
 from datetime import datetime
@@ -25,7 +25,7 @@ def run_with_delay(command_list, delay_factor=10):
     for command in command_list:
         system(command + " &")
         nn += 1
-        if nn % 2 == 0:
+        if nn % 10 == 0:
             printT(f"Submitted {nn} Remaining {nt-nn}")
         
         sleep(delay_factor * random())
@@ -39,10 +39,11 @@ def main():
     # preemtible safe operation, can be stopped in the middle
     is_completed = run_with_delay(jobs)
 
-    # preemtible exit wont' reach here, only full completion reach, do samething as early stop
+    # preemtible exit won't reach here, only full completion reach, shutdown will trigger registered shutdown script
     if is_completed:
         sleep(90)
-        system("sh _shutdown_.sh")
+        if len(getenv("VMID")) > 3:
+            system("sudo systemctl shutdown")
 
 
 
