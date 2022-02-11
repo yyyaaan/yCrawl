@@ -1,5 +1,4 @@
 #! /bin/bash
-echo entering startup script
 gcloud logging write y_simple_log "VM $VMID Starting"
 
 # update to version
@@ -8,7 +7,8 @@ git pull
 
 # call the main.py and done
 cd ./Worker/
-nohup python3 main.py &
+nohup python3 -u main.py > ./cache/a_log_$(date +"%H%M").pp 2>&1 &
 
 gcloud logging write y_simple_log "VM $VMID Job initiated"
-echo completed startup script
+
+

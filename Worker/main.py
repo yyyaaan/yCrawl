@@ -2,10 +2,13 @@ from os import system, getenv
 from time import sleep
 from random import random
 from datetime import datetime
-from requests import get as urlget
+from requests import get as urlget, post as urlpost
 
 RUN_MODE = "test"
 COORDINATOR_ENDPOINT = "http://app.yan.fi/coordinator"
+COMPLETION_ENDPOINT = "http://app.yan.fi/notifydone"
+#COMPLETION_ENDPOINT = "http://127.0.0.1:8080/notifydone"
+#urlpost(COMPLETION_ENDPOINT, data = {"VMID": getenv("VMID")})
 
 def get_job_list():
     res = urlget(COORDINATOR_ENDPOINT)
@@ -15,10 +18,11 @@ def get_job_list():
 
 def printT(str):
     print(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  " + str)
+    system(f'gcloud logging write y_simple_log "{str}"')
     return True
 
 
-def run_with_delay(command_list, delay_factor=10):
+def run_with_delay(command_list, delay_factor=30):
     nn, nt = 0, len(command_list)
     printT(f"#Jobs = {nt}")
 
@@ -42,8 +46,7 @@ def main():
     # preemtible exit won't reach here, only full completion reach, shutdown will trigger registered shutdown script
     if is_completed:
         sleep(90)
-        if len(getenv("VMID")) > 3:
-            system("sudo systemctl shutdown")
+        urlpost(COMPLETION_ENDPOINT, json = {"VMID": getenv("VMID")})
 
 
 

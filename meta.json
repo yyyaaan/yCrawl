@@ -1,26 +1,23 @@
 {    
     "scope": "test",
     "max-retry": 2,
-    "desc-scope": "running mode keyword: local, test or prod",
-    "date-range-min": 28,
-    "date-range-max": 343,
+    "desc-scope": "running mode keyword: local, test or prod, was 28-343",
+    "date-range-min": 231,
+    "date-range-max": 287,
     "active-qr-config": {
         "center-days": 15,
-        "origins": "HEL,AMS,OSL",
-        "destinations": "SYD,MEL,CBR",
+        "origins": "ARN",
+        "destinations": "MEL",
         "desc": "QR shows a two-week calendar, so define centering day"
     },
     "active-hotel-config": {
         "hotel-nights": [
-            "7,Pullman Maldives"
+            "7,Pullman Maldives",
+            "4,Meridien Pines",
+            "4,Four Seasons Bora",
+            "4,Regis Bora"
         ],
         "temporarily-deactivated":[
-            "3,Meridien Pines",
-            "4,Meridien Pines",
-            "3,Four Seasons Bora",
-            "4,Four Seasons Bora",
-            "3,Regis Bora",
-            "4,Regis Bora"
         ]
     },
     "desc-meta": [

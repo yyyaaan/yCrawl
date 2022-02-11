@@ -56,3 +56,4 @@ mkdir cache
 
 # register a global variable for logging convenience
 echo "VMID=$HOSTNAME" | sudo tee -a /etc/environment
+VMID=$HOSTNAME

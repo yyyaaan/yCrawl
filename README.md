@@ -11,23 +11,14 @@ __Worker__ is a virtual machine (or container) to actually do the job. To simpli
 
 __DataProcessor__ is the pipeline to perform ETL.
 
-## Environment
-
-Configured environments for `conda env config vars set GOOGLE_APPLICATION_CREDENTIALS="/Users/pannnyan/Documents/.credentials/gcp.json"` (example on local). Fine-tuning default worker service account is assumed on cloud deployment.
-
-Note: [Startup shutdown scripts are critical for preemtible instances](https://cloud.google.com/compute/docs/shutdownscript)
-
-
 ## Other concpets
 - appdata.json defines tasks should be done; this file is expected to be changed a few times a year
 
 
 ## Deployment Checklist
-
+- Configure availablity, meta-data and API access during creation
 - Run `__init__.sh` manually
 - Check path and python3, nodejs versions
 - Grant bucket access to default service account
 - Scripts settings in metadata `#! /bin/bash sudo sh /home/yan/yCrawl/Worker/_shutdown_.sh`
-
-Startup and shutdown script to correct auth (default service account)
 
