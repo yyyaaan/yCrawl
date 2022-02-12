@@ -5,8 +5,8 @@ from datetime import datetime
 from requests import get as urlget, post as urlpost
 
 RUN_MODE = "test"
-COORDINATOR_ENDPOINT = "http://app.yan.fi/coordinator"
-COMPLETION_ENDPOINT = "http://app.yan.fi/notifydone"
+COORDINATOR_ENDPOINT = "https://yyyaaannn.ew.r.appspot.com/coordinator"
+COMPLETION_ENDPOINT = "https://yyyaaannn.ew.r.appspot.com/notifydone"
 
 
 def get_job_list():
@@ -21,7 +21,7 @@ def printT(str):
     return True
 
 
-def run_with_delay(command_list, delay_factor=50):
+def run_with_delay(command_list, delay_factor=80):
     nn, nt = 0, len(command_list)
     printT(f"Starting assigned {nt} jobs")
 
@@ -49,7 +49,7 @@ def main():
         run_with_delay(get_job_list())
     
     # after one retry, will shutdown anyway
-    sleep(90)
+    sleep(120)
     urlpost(COMPLETION_ENDPOINT, json = {"VMID": getenv("VMID")})
 
 

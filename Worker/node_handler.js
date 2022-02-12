@@ -6,14 +6,14 @@ const the_key = process.argv[2]
 const the_url = process.argv[3]
 
 // broswer configuration
-const max_time = 39000
+const max_time = 50000
 const wait_time = 2999
 const wait_opts = { waitUntil: 'networkidle0' }
 
 // output coordinator
 const exe_start = new Date();
 var out_path = "./cache/" + the_key + "_" + exe_start.toISOString().substring(11, 23).replace(/[^0-9]/g, '')
-var out = ["output ok", "\n<qurl>" + the_url + '</qurl>\n<timestamp>' + (exe_start.toISOString()) + '</timestamp>\n'];
+var out = ["<nodeinfo>ok</nodeinfo>", "<qurl>" + the_url + '</qurl><timestamp>' + (exe_start.toISOString()) + '</timestamp>\n'];
 
 
 (async () => {
@@ -127,14 +127,14 @@ var out = ["output ok", "\n<qurl>" + the_url + '</qurl>\n<timestamp>' + (exe_sta
 
         if(DEBUG_MODE) await page.screenshot({path: out_path + '.png'})
         out.push('<exetime>' + (new Date() - exe_start) / 1000 + '</exetime>\n')
-        filesave.writeFile(out_path + '.pp', out.join(), function (err) {})
+        filesave.writeFile(out_path + '.pp', out.join(''), function (err) {})
 
     } catch (e) {
 
-        out[0] = 'error'
+        out[0] = '<nodeinfo>error</nodeinfo>'
         out.push(e)
         await page.screenshot({ path: out_path + '_XXX.png'})
-        filesave.writeFile(out_path + '_ERR.pp', out.join(), function (err) {})
+        filesave.writeFile(out_path + '_ERR.pp', out.join(''), function (err) {})
     }
 
     await browser.close()
