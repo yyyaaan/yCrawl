@@ -2,7 +2,8 @@
 # will not do logging if called with parameter
 
 if [ $# -eq 0 ]
-  then gcloud logging write y_simple_log "Shutdown noticed for $VMID!" --severity="INFO" &> silent.log
+  then gcloud logging write y_simple_log "i $VMID shutdown noticed!" --severity="INFO" &> silent.log
+  else gcloud logging write y_simple_log "i $VMID: $1" --severity="INFO" &> silent.log
 fi
 
 ### configure path and mode carefully
@@ -22,5 +23,6 @@ gsutil  -q -m \
 zip -q -m $(date +"%Y%m%d_%H%M%S.zip") *.pp
 
 if [ $# -eq 0 ]
-  then gcloud logging write y_simple_log "Shutdown ready! Uploading arhiving succeeded for $VMID." --severity="INFO"
+  then gcloud logging write y_simple_log "i $VMID Shutdown ready! Upload succeeded." --severity="INFO"
+  else gcloud logging write y_simple_log "i $VMID: $1 upload succeeded" --severity="INFO" &> silent.log
 fi

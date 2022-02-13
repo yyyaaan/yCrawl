@@ -1,21 +1,22 @@
 {    
     "scope": "test",
     "max-retry": 2,
-    "desc-scope": "running mode keyword: local, test or prod, was 28-343",
+    "desc-scope": "WORKER should set scope inplace. Mode[local/test/prod] below was 28-343",
     "date-range-min": 231,
     "date-range-max": 287,
     "active-qr-config": {
         "center-days": 15,
         "origins": "ARN",
-        "destinations": "MEL",
+        "destinations": "MEL SYD",
         "desc": "QR shows a two-week calendar, so define centering day"
     },
     "active-hotel-config": {
         "hotel-nights": [
             "7,Pullman Maldives",
+            "5,Pullman Maldives",
             "4,Meridien Pines",
             "4,Four Seasons Bora",
-            "4,Regis Bora"
+            "4,Hilton Moorea"
         ],
         "temporarily-deactivated":[
         ]

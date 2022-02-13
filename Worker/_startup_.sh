@@ -9,6 +9,6 @@ git pull
 cd ./Worker/
 nohup python3 -u main.py > ./cache/0_log_$(date +"%H%M").pp 2>&1 &
 
-gcloud logging write y_simple_log "VM $VMID Job initiated" --severity="INFO" &> silent.log
-
-
+# count possible residual files
+NRES=$(ls -1q ./Worker/cache/*.pp | wc -l)
+gcloud logging write y_simple_log "i $VMID Job initiated ($NRES)" --severity="INFO" &> silent.log

@@ -5,12 +5,13 @@ from datetime import datetime
 from requests import get as urlget, post as urlpost
 
 RUN_MODE = "test"
+N_PER_STAGE = 20
 COORDINATOR_ENDPOINT = "https://yyyaaannn.ew.r.appspot.com/coordinator"
 COMPLETION_ENDPOINT = "https://yyyaaannn.ew.r.appspot.com/notifydone"
 
 
 def get_job_list():
-    res = urlget(COORDINATOR_ENDPOINT)
+    res = urlpost(COORDINATOR_ENDPOINT, json = {"VMID": getenv("VMID")})
     jobs = [x for x in res.text.split("\n") if x != ""]
     return jobs
 
@@ -21,15 +22,18 @@ def printT(str):
     return True
 
 
-def run_with_delay(command_list, delay_factor=80):
+def run_with_delay(command_list, delay_factor=70):
     nn, nt = 0, len(command_list)
     printT(f"Starting assigned {nt} jobs")
 
     for command in command_list:
         system(command + " &")
         nn += 1
-        if nn % 20 == 0:
-            printT(f"- Submitted {nn} Remaining {nt-nn}")
+        if nn % N_PER_STAGE == 0:
+            sleep(90)
+            info = f'Stage_{nn}S_{nt-nn}R'
+            system(f"sh _shutdown_.sh {info}")
+            # printT(f"- Submitted {nn} Remaining {nt-nn}")
         
         sleep(delay_factor * random())
 
@@ -42,9 +46,8 @@ def main():
 
     # preemtible shutdown won't be here; on full completion, retry once
     if is_completed:
-        printT("Finishing assigned jobs...")
         sleep(99)
-        system("sh _shutdown_.sh retryonly")
+        system("sh _shutdown_.sh BeginRetry")
         sleep(30)
         run_with_delay(get_job_list())
     

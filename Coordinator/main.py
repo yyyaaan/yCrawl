@@ -61,16 +61,20 @@ def fetch_all_urls(shuffled=True):
     return all_urls
 
 
-def call_coordinator():
+def call_coordinator(info_only=False, batch=999, total_batches=1):
     urls_all = fetch_all_urls()
     keys_done, keys_forfeit, keys_error = get_keys_status(RUN_MODE)
 
-    urls_todo = [x for x in urls_all if x['key']
-                 not in (keys_done + keys_forfeit)]
-    #print(f"Planned={len(urls_all)}, Completion={len(keys_done)}, Error={len(keys_forfeit)}, Todo={len(urls_todo)}")
+    urls_todo = [x for x in urls_all if x['key'] not in (keys_done + keys_forfeit)]
 
-    bash_nodes = [
-        f'node node_handler.js {x["key"]} "' + x['url'] + '"' for x in urls_todo]
+    if info_only:
+        info_str = f"Planned={len(urls_all)}, Todo={len(urls_todo)}, Completion={len(keys_done)}*, Error={len(keys_forfeit)}*"
+        return info_str, len(urls_all), len(urls_todo), len(keys_done), len(keys_forfeit), len(keys_error)
+
+    if batch > total_batches:
+        urls_todo = [x for x in urls_all if (int(x['key'][-4:]) % total_batches == batch)]
+
+    bash_nodes = [f'node node_handler.js {x["key"]} "' + x['url'] + '"' for x in urls_todo]
 
     return "\n".join(bash_nodes)
 
