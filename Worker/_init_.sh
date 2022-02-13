@@ -44,7 +44,7 @@ sudo apt-get install -y \
     xdg-utils \
     zip
 
-git clone http://github.com/yyyaaan/yCrawl
+git clone https://github.com/yyyaaan/yCrawl
 
 cd ~/yCrawl/Worker
 
