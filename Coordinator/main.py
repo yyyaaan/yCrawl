@@ -71,7 +71,7 @@ def call_coordinator(info_only=False, batch=999, total_batches=1):
         info_str = f"Planned={len(urls_all)}, Todo={len(urls_todo)}, Completion={len(keys_done)}*, Error={len(keys_forfeit)}*"
         return info_str, len(urls_all), len(urls_todo), len(keys_done), len(keys_forfeit), len(keys_error)
 
-    if batch > total_batches:
+    if batch < total_batches:
         urls_todo = [x for x in urls_all if (int(x['key'][-4:]) % total_batches == batch)]
 
     bash_nodes = [f'node node_handler.js {x["key"]} "' + x['url'] + '"' for x in urls_todo]
