@@ -19,7 +19,7 @@ DATE_STR = date.today().strftime("%Y%m%d")
 CONTROL_ID = ((date.today() - date(1970,1,1)).days) % 4
 
 # load in the meta.json from github raw (same source as root)
-live_meta = get("https://raw.githubusercontent.com/yyyaaan/yCrawl/main/meta.json")
+live_meta = get("https://raw.githubusercontent.com/yyyaaan/metadata/main/yCrawl/meta.json")
 ALL_SETTINGS = loads(live_meta.text)
 
 LIMIT_RETRY = ALL_SETTINGS['max-retry']
