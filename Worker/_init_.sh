@@ -57,3 +57,6 @@ mkdir cache
 # register a global variable for logging convenience
 echo "VMID=$HOSTNAME" | sudo tee -a /etc/environment
 VMID=$HOSTNAME
+
+# authkey will be dynamic; auth fail is expected in first run
+AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")

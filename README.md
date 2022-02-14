@@ -12,8 +12,8 @@ __Worker__ is a virtual machine (or container) to actually do the job. To simpli
 __DataProcessor__ is the pipeline to perform ETL.
 
 ## Other concpets
-- appdata.json defines tasks should be done; this file is expected to be changed a few times a year
 
+- In worker, minimal packages are used. For example, GCP operations are hand to gsutil command line. AUTHKEY is managed by Cloud Secret Manager, and registered to system environment dynamically.
 
 ## Deployment Checklist
 - Configure availablity, meta-data and API access during creation

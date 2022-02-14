@@ -1,5 +1,6 @@
 #! /bin/bash
 gcloud logging write y_simple_log "$VMID machine started" --severity="INFO" &> silent.log
+AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")
 
 # update to version
 cd home/yan/yCrawl/

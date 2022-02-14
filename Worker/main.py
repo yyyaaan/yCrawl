@@ -11,7 +11,7 @@ COMPLETION_ENDPOINT = "https://yyyaaannn.ew.r.appspot.com/notifydone"
 
 
 def get_job_list():
-    res = urlpost(COORDINATOR_ENDPOINT, json = {"VMID": getenv("VMID")})
+    res = urlpost(COORDINATOR_ENDPOINT, json = {"VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
     jobs = [x for x in res.text.split("\n") if x != ""]
     return jobs
 
@@ -55,7 +55,7 @@ def main():
     
     # after one retry, will shutdown anyway
     sleep(120)
-    urlpost(COMPLETION_ENDPOINT, json = {"VMID": getenv("VMID")})
+    urlpost(COMPLETION_ENDPOINT, json = {"VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
 
 
 
