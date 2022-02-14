@@ -2,8 +2,8 @@
 # will not do logging if called with parameter
 
 if [ $# -eq 0 ]
-  then gcloud logging write y_simple_log "i $VMID shutdown noticed!" --severity="INFO" &> silent.log
-  else gcloud logging write y_simple_log "i $VMID: $1" --severity="INFO" &> silent.log
+  then gcloud logging write y_simple_log "$VMID shutdown noticed!" --severity="INFO" &> silent.log
+  else gcloud logging write y_simple_log "$VMID $1" --severity="INFO" &> silent.log
 fi
 
 ### configure path and mode carefully
@@ -19,10 +19,10 @@ gsutil  -q -m \
         gs://ycrawl-data/$runmode/$(date +"%Y")/$(date +"%m")/$(date +"%d")
 
 
-### archive to zip, -m remove files, -q quiet
-zip -q -m $(date +"%Y%m%d_%H%M%S.zip") *.pp
+### archive to zip, -m remove files, -q quiet, bot png and pp
+zip -q -m $(date +"%Y%m%d_%H%M%S.zip") *.p*
 
 if [ $# -eq 0 ]
-  then gcloud logging write y_simple_log "i $VMID Shutdown ready! Upload succeeded." --severity="INFO"
-  else gcloud logging write y_simple_log "i $VMID: $1 upload succeeded" --severity="INFO" &> silent.log
+  then gcloud logging write y_simple_log "$VMID shutdown ready! Upload succeeded." --severity="INFO"
+  else gcloud logging write y_simple_log "$VMID $1 upload succeeded" --severity="INFO" &> silent.log
 fi

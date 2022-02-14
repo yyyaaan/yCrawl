@@ -24,7 +24,10 @@ def printT(str):
 
 def run_with_delay(command_list, delay_factor=70):
     nn, nt = 0, len(command_list)
-    printT(f"Starting assigned {nt} jobs")
+    if nt < 1:
+        return True
+
+    printT(f'{getenv("VMID")} starts assigned {nt} jobs')
 
     for command in command_list:
         system(command + " &")
@@ -33,7 +36,6 @@ def run_with_delay(command_list, delay_factor=70):
             sleep(90)
             info = f'Stage_{nn}S_{nt-nn}R'
             system(f"sh _shutdown_.sh {info}")
-            # printT(f"- Submitted {nn} Remaining {nt-nn}")
         
         sleep(delay_factor * random())
 
