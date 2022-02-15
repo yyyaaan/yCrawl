@@ -2,7 +2,7 @@ from os import system, getenv
 from time import sleep
 from random import random
 from datetime import datetime
-from requests import get as urlget, post as urlpost
+from requests import post as urlpost
 
 RUN_MODE = "test"
 N_PER_STAGE = 20
@@ -11,6 +11,7 @@ COMPLETION_ENDPOINT = "https://yyyaaannn.ew.r.appspot.com/notifydone"
 
 
 def get_job_list():
+    sleep(50*random())
     res = urlpost(COORDINATOR_ENDPOINT, json = {"VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
     jobs = [x for x in res.text.split("\n") if x != ""]
     return jobs
@@ -43,13 +44,14 @@ def run_with_delay(command_list, delay_factor=70):
 
 
 def main():
-    # preemtible safe operation, can be stopped in the middle   
-    is_completed = run_with_delay(get_job_list())
+    # preemtible safe operation, can be stopped in the middle
+    jobs_todo = get_job_list()
+    is_completed = run_with_delay(jobs_todo)
 
     # preemtible shutdown won't be here; on full completion, retry once
-    if is_completed:
+    if is_completed and len(jobs_todo):
         sleep(99)
-        system("sh _shutdown_.sh BeginRetry")
+        system("sh _shutdown_.sh localretry")
         sleep(30)
         run_with_delay(get_job_list())
     

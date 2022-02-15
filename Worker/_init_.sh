@@ -58,5 +58,6 @@ mkdir cache
 echo "VMID=$HOSTNAME" | sudo tee -a /etc/environment
 VMID=$HOSTNAME
 
-# authkey will be dynamic; auth fail is expected in first run
+# authkey for header authentication
 AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")
+echo "AUTHKEY=$AUTHKEY" | sudo tee -a /etc/environment

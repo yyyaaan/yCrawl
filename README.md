@@ -17,8 +17,8 @@ __DataProcessor__ is the pipeline to perform ETL.
 
 ## Deployment Checklist
 - Configure availablity, meta-data and API access during creation
-- Run `__init__.sh` manually
+- Run `__init__.sh` manually (recommended) or git first and call the sh
 - Check path and python3, nodejs versions
-- Grant bucket access to default service account
+- Confirm service account rights (bucket, secret accessor)
 - Scripts settings in metadata `#! /bin/bash sudo sh /home/yan/yCrawl/Worker/_shutdown_.sh`
 

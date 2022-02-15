@@ -68,8 +68,8 @@ def call_coordinator(info_only=False, batch=999, total_batches=1):
     urls_todo = [x for x in urls_all if x['key'] not in (keys_done + keys_forfeit)]
 
     if info_only:
-        info_str = f"Planned={len(urls_all)}, Todo={len(urls_todo)}, Completion={len(keys_done)}*, Error={len(keys_forfeit)}*"
-        return info_str, len(urls_all), len(urls_todo), len(keys_done), len(keys_forfeit), len(keys_error)
+        info_str = f"Planned={len(urls_all)}, Todo={len(urls_todo)}, Completion={len(keys_done)}({len(set(keys_done))}), Error={len(keys_error)}({len(set(keys_error))}), X={len(keys_forfeit)}"
+        return info_str, len(urls_all), len(urls_todo), len(keys_done), len(keys_forfeit), len(keys_error), len(set(keys_error))
 
     if batch < total_batches:
         urls_todo = [x for x in urls_todo if (int(x['key'][-4:]) % total_batches == batch)]
