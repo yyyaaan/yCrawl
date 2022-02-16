@@ -10,7 +10,6 @@ global META_URL
 global META_IATA
 global HOTEL_CONFIG
 global QATAR_CONFIG
-global GCP_JSON_PATH
 
 # global ALL_SETTINGS
 

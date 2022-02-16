@@ -1,14 +1,17 @@
 from os import system, getenv
 from time import sleep
+from json import loads
 from random import random
 from datetime import datetime
-from requests import post as urlpost
+from requests import post as urlpost, get as urlget
 
-RUN_MODE = "test"
-N_PER_STAGE = 20
-COORDINATOR_ENDPOINT = "https://yyyaaannn.ew.r.appspot.com/coordinator"
-COMPLETION_ENDPOINT = "https://yyyaaannn.ew.r.appspot.com/notifydone"
 
+profile = urlget("https://raw.githubusercontent.com/yyyaaan/metadata/main/ycrawl.json")
+meta = loads(profile.text)['worker-profile']
+N_PER_STAGE = meta["stage-size"]
+DELAY_TARGET = meta["delay-target"]
+COORDINATOR_ENDPOINT = meta["COORDINATOR_ENDPOINT"]
+COMPLETION_ENDPOINT = meta["COORDINATOR_ENDPOINT"]
 
 def get_job_list():
     sleep(50*random())

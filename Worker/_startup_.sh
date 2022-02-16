@@ -2,12 +2,10 @@
 gcloud logging write y_simple_log "$VMID machine started" --severity="INFO" &> silent.log
 AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")
 
-# update to version
-cd home/yan/yCrawl/
-git pull
+# git pull (update to new version) - MOVED TO SYSTEM SERVICE
 
 # call the main.py and done
-cd ./Worker/
+cd /home/yan/yCrawl/Worker/
 nohup python3 -u main.py > ./cache/0_log_$(date +"%H%M").pp 2>&1 &
 
 # count possible residual files
