@@ -16,7 +16,9 @@ COMPLETION_ENDPOINT = meta["COORDINATOR_ENDPOINT"]
 def get_job_list():
     sleep(50*random())
     res = urlpost(COORDINATOR_ENDPOINT, json = {"VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
-    jobs = [x for x in res.text.split("\n") if x != ""]
+    jobs = []
+    if res.status_code not in [400, 403]:
+        jobs = [x for x in res.text.split("\n") if x != ""]
     return jobs
 
 
