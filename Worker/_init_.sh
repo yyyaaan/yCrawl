@@ -79,12 +79,17 @@ AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")  
 
 
 
-#   ____  _             _                 ____            _       _   
-#  / ___|| |_ __ _ _ __| |_ _   _ _ __   / ___|  ___ _ __(_)_ __ | |_ 
-#  \___ \| __/ _` | '__| __| | | | '_ \  \___ \ / __| '__| | '_ \| __|
-#   ___) | || (_| | |  | |_| |_| | |_) |  ___) | (__| |  | | |_) | |_ 
-#  |____/ \__\__,_|_|   \__|\__,_| .__/  |____/ \___|_|  |_| .__/ \__|
-#                                |_|                       |_|        
+#                 _                        _   _                             _       _       
+#      /\        | |                      | | (_)                           (_)     | |      
+#     /  \  _   _| |_ ___  _ __ ___   __ _| |_ _  ___  _ __    ___  ___ _ __ _ _ __ | |_ ___ 
+#    / /\ \| | | | __/ _ \| '_ ` _ \ / _` | __| |/ _ \| '_ \  / __|/ __| '__| | '_ \| __/ __|
+#   / ____ \ |_| | || (_) | | | | | | (_| | |_| | (_) | | | | \__ \ (__| |  | | |_) | |_\__ \
+#  /_/    \_\__,_|\__\___/|_| |_| |_|\__,_|\__|_|\___/|_| |_| |___/\___|_|  |_| .__/ \__|___/
+#                                                                             | |            
+#                                                                             |_|            
+
+sudo rm /usr/local/bin/ycrawl-startup.sh /etc/systemd/system/ycrawl-init.service
+sudo rm /usr/local/bin/ycrawl-shutdown.sh /etc/systemd/system/ycrawl-quit.service
 
 sudo tee -a /usr/local/bin/ycrawl-startup.sh > /dev/null <<EOT
 #!/bin/bash
@@ -125,12 +130,7 @@ WantedBy=cloud-init.target
 EOT
 
 
-#   ____  _           _      _                       ____            _       _   
-#  / ___|| |__  _   _| |_ __| | _____      ___ __   / ___|  ___ _ __(_)_ __ | |_ 
-#  \___ \| '_ \| | | | __/ _` |/ _ \ \ /\ / / '_ \  \___ \ / __| '__| | '_ \| __|
-#   ___) | | | | |_| | || (_| | (_) \ V  V /| | | |  ___) | (__| |  | | |_) | |_ 
-#  |____/|_| |_|\__,_|\__\__,_|\___/ \_/\_/ |_| |_| |____/ \___|_|  |_| .__/ \__|
-#                                                                     |_|        
+# Shutdown script and service
 
 sudo tee -a /usr/local/bin/ycrawl-shutdown.sh > /dev/null <<EOT
 #!/bin/bash
@@ -138,7 +138,7 @@ sudo tee -a /usr/local/bin/ycrawl-shutdown.sh > /dev/null <<EOT
 echo "shutdown script" $(date) >> /home/yan/script.txt
 gcloud logging write y_simple_log "test $VMID shutdown service" --severity="INFO"
 
-sudo sh /home/yan/yCrawl/Woker/_shutdown_.sh ShutdownAcknowledged
+sudo sh /home/yan/yCrawl/Worker/_shutdown_.sh ShutdownAcknowledged
 
 EOT
 
@@ -166,8 +166,6 @@ EOT
 
 
 # Activate the services
-
-# disable first if edit script
 sudo chmod 744 /usr/local/bin/ycrawl-startup.sh /usr/local/bin/ycrawl-shutdown.sh
 sudo chmod 664 /etc/systemd/system/ycrawl-init.service /etc/systemd/system/ycrawl-quit.service
 sudo systemctl daemon-reload
