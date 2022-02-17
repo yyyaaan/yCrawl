@@ -11,7 +11,7 @@ meta = loads(profile.text)['worker-profile']
 N_PER_STAGE = meta["stage-size"]
 DELAY_TARGET = meta["delay-target"]
 COORDINATOR_ENDPOINT = meta["COORDINATOR_ENDPOINT"]
-COMPLETION_ENDPOINT = meta["COORDINATOR_ENDPOINT"]
+COMPLETION_ENDPOINT = meta["COMPLETION_ENDPOINT"]
 
 def get_job_list():
     sleep(50*random())
