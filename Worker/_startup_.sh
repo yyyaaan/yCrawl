@@ -10,4 +10,4 @@ nohup python3 -u main.py > /home/yan/log_$(date +"%H%M").log 2>&1 &
 
 # count possible residual files
 NRES=$(ls -1q ./Worker/cache/*.pp | wc -l)
-gcloud logging write y_simple_log "$VMID job initiated (R$NRES)" --severity="INFO" &> /home/yan/silent.log
+gcloud logging write y_simple_log "$VMID initiated (R$NRES)" --severity="INFO" &> /home/yan/silent.log

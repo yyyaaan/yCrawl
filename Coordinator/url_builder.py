@@ -5,12 +5,24 @@ from datetime import timedelta
 def url_qr(from1, to1, from2, to2, departure_date, layover_days):
 
     return_date = departure_date + timedelta(days=layover_days)
+
+    if from1 == to2 and to1 == from2:
+        return f'''
+        https://booking.qatarairways.com/nsp/views/showBooking.action?widget=QR
+        &searchType=F&addTaxToFare=Y&minPurTime=0&upsellCallId=&allowRedemption=Y&flexibleDate=Off&bookingClass=B&tripType=R&selLang=en
+        &fromStation={from1}&from={META_IATA[from1]}&toStation={to1}&to={META_IATA[to1]}
+        &departingHidden={departure_date.strftime("%d-%b-%Y")}&departing={departure_date.strftime("%Y-%m-%d")}
+        &returningHidden={return_date.strftime("%d-%b-%Y")}&returning={return_date.strftime("%Y-%m-%d")}
+        &adults=1&children=0&infants=0&teenager=0&ofw=0&promoCode=&stopOver=NA
+        '''.replace("\n", "").replace("\r", "").replace(" ", "")
+
     return f'''
     https://booking.qatarairways.com/nsp/views/showBooking.action?widget=MLC
     &searchType=S&bookingClass=B&minPurTime=null&tripType=M&allowRedemption=Y&selLang=EN&adults=1&children=0&infants=0&teenager=0&ofw=0&promoCode=
     &fromStation={from1}&toStation={to1}&departingHiddenMC={departure_date.strftime("%d-%b-%Y")}&departing={departure_date.strftime("%Y-%m-%d")}
     &fromStation={from2}&toStation={to2}&departingHiddenMC={return_date.strftime("%d-%b-%Y")}&departing={return_date.strftime("%Y-%m-%d")}
     '''.replace("\n", "").replace("\r", "").replace(" ", "")
+
 
 
 def url_hotel(checkin, nights, hotel):
