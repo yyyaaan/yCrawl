@@ -99,7 +99,7 @@ gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 gcloud config set project yyyaaannn
 gcloud logging write y_simple_log "test $VMID startup service" --severity="INFO"
 
-cd home/yan/yCrawl/
+cd /home/yan/yCrawl/
 git pull
 
 sudo sh /home/yan/yCrawl/Worker/_startup_.sh
