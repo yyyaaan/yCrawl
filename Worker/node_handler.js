@@ -15,7 +15,7 @@ const exe_start = new Date();
 var out_path = "./cache/" + the_key + "_" + exe_start.toISOString().substring(11, 23).replace(/[^0-9]/g, '')
 var out = [
     "<nodeinfo>ok</nodeinfo>", 
-    "<vmid>" + process.env['VMIxD'] + "</vmid>",
+    "<vmid>" + String(process.env['VMID']) + "</vmid>",
     "<qurl>" + the_url + "</qurl>", 
     "<timestamp>" + (exe_start.toISOString()) + '</timestamp>\n'
 ]
