@@ -13,6 +13,7 @@ sudo apt-get install -y \
     ca-certificates \
     fonts-liberation \
     gconf-service \
+    git \
     gnupg \
     libappindicator1 \
     libasound2 \

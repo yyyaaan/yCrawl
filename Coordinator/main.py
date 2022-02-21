@@ -11,7 +11,7 @@ def get_keys_status(type=RUN_MODE):
     gcp_client = storage.Client()
     bucket = gcp_client.get_bucket("ycrawl-data")
     files_in_storage = [x.name for x in bucket.list_blobs(
-        prefix=f'{RUN_MODE}/{date.today().strftime("%Y/%m/%d")}')]
+        prefix=f'{RUN_MODE}/{date.today().strftime("%Y%m/%d")}')]
 
     keys_completed = [
         DATE_STR + "_" + x.split("_")[1] for x in files_in_storage if not x.endswith("ERR.pp")]

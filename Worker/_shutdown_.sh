@@ -3,7 +3,7 @@
 gcloud logging write y_simple_log "$VMID $1" --severity="INFO"
 
 ### configure path and mode carefully
-runmode=test
+runmode=prod1
 cd /home/yan/yCrawl/Worker/cache
 
 ### send to cloud storage -m multitasking
@@ -12,7 +12,7 @@ gsutil  -q -m \
         -h "Content-Encoding:gzip" \
         mv -z pp \
         *.pp \
-        gs://ycrawl-data/$runmode/$(date +"%Y")/$(date +"%m")/$(date +"%d")
+        gs://ycrawl-data/$runmode/$(date +"%Y%m")/$(date +"%d")
 
 
 ### archive to zip, -m remove files, -q quiet, bot png and pp
