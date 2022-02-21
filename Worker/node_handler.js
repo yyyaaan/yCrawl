@@ -10,15 +10,14 @@ const max_time = 50000
 const wait_time = 2999
 const wait_opts = { waitUntil: 'networkidle0' }
 
-// output coordinator
+// output coordinator, ; required for asynce next
 const exe_start = new Date();
 var out_path = "./cache/" + the_key + "_" + exe_start.toISOString().substring(11, 23).replace(/[^0-9]/g, '')
-var out = [
-    "<nodeinfo>ok</nodeinfo>", 
+var out = ["<nodeinfo>ok</nodeinfo>", 
     "<vmid>" + String(process.env['VMID']) + "</vmid>",
     "<qurl>" + the_url + "</qurl>", 
-    "<timestamp>" + (exe_start.toISOString()) + '</timestamp>\n'
-]
+    "<timestamp>" + exe_start.toISOString() + "</timestamp>"
+];
 
 
 (async () => {
