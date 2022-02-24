@@ -1,4 +1,5 @@
 Worker/cache/
+local_dev.sh
 .DS_Store
 # includes both Node and Python template
 

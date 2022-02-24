@@ -6,3 +6,6 @@ source activate base
 export GOOGLE_APPLICATION_CREDENTIALS="~/Documents/.credentials/gcp.json"
 export AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")
 export VMID="local-mac-os"
+
+# gcloud app deploy
+# gcloud app deploy cron.yaml

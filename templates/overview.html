@@ -1,0 +1,56 @@
+{% extends "parent.html" %}
+{% block title %} Resources and Service Status {% endblock %}
+
+{% block contentmore %} 
+<div class="col s12 m9">
+    <div class="card">
+        <div class="card-tabs">
+            <ul class="tabs tabs-fixed-width">
+                {% for one_log in logs_by_vm %}
+                <li class="tab"><a href="#{{one_log.name}}">{{one_log.name}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card-content grey lighten-4">
+            {% for one_log in logs_by_vm %}
+            <div id="{{one_log.name}}"><pre class="log-print">{% autoescape false %}{{one_log.logs}}{% endautoescape %}</pre></div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="col s12 m3"  style="background-color:ghostwhite">
+    <h3>{{n_jobs}}</h3>
+    <p>{% autoescape false %}{{jobs_detail}}{% endautoescape %} <br/> <a href="/files">[View outputs]</a></p>
+</div>
+{% endblock %}
+
+
+{% block content %} 
+<div class="col s12 m3"  style="background-color:ghostwhite">
+    <h3>{{vm_running_n}}</h3>
+    <p>Active nodes (VM)</p>
+    <h3>{{completed_percent}}</h3>
+    <p>Completion of scheduled</p>
+</div>
+<div class="col s12 m9">
+    <ul class="collapsible popout">
+        {% for vm in vm_status_list %}
+        <li>
+            <div class="collapsible-header">{{vm.header}}</div>
+            <div class="collapsible-body">
+                <div class="right-align">
+                    <form action="/vmaction" method="post">
+                        <input type="hidden" name="VMID" value="{{vm.vmid}}">
+                        <input type="password" name="PASS" style="width: 150px;">
+                        <button class="btn-flat" name="ACTION" value="START">START</button>
+                        <button class="btn-flat" name="ACTION" value="STOP">STOP</button>
+                    </form>
+                </div>
+                <pre class="log-print">{% autoescape false %}{{vm.content}}{% endautoescape %}</pre>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>     
+</div>
+{% endblock %}

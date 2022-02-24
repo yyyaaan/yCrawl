@@ -1,5 +1,5 @@
-from . config import *
-from . url_builder import url_hotel, url_qr
+from config import *
+from Coordinator.url_builder import url_hotel, url_qr
 from google.cloud import storage
 from datetime import date
 from random import shuffle
@@ -9,7 +9,7 @@ def get_keys_status(type=RUN_MODE):
 
     # LOCAL files_in_storage = [x for x in listdir(cache_folder) if x.endswith(".pp")]
     gcp_client = storage.Client()
-    bucket = gcp_client.get_bucket("ycrawl-data")
+    bucket = gcp_client.get_bucket(GSBUCKET)
     files_in_storage = [x.name for x in bucket.list_blobs(
         prefix=f'{RUN_MODE}/{date.today().strftime("%Y%m/%d")}')]
 

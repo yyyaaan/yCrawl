@@ -1,0 +1,43 @@
+{% extends "parent.html" %}
+{% block title %} Resources and Service Status {% endblock %}
+
+
+{% block content %} 
+<div class="col s12 m10 offset-m1">
+    <p><a href="{{gs_link}}">{{info_str}}</a></p>
+    <ul class="collapsible">
+        {% for one_brand in all_files %}
+        <li>
+            <div class="collapsible-header">[{{one_brand.len}}]  {{one_brand.brand}}</div>
+            <div class="collapsible-body">
+                <div class="row">
+                    {% for x in one_brand.list %}
+                    <div class="col s4"> {{x.desc}} {{x.key}}</div>
+                    <div class="col s4"> <a href="{{x.uurl}}">[web]</a> {% for y in x.link %}  <a href="{{y}}">[gs]</a>  {% endfor %}</div>
+                    <div class="col s4"> by {{x.server}} </div>
+                    {% endfor %}
+                </div>                
+            </div>
+        </li>
+        {% endfor %}
+    </ul>     
+</div>
+{% endblock %}
+
+
+{% block contentmore %} 
+<div class="col s4 right-align"  style="background-color:ghostwhite">
+    <h3 style="margin-top: 100px">{{count}}</h3>
+    <p style="margin-bottom: 100px">links available</p>
+</div>
+<div class="col s8">
+    <ul>
+        {% for item in items %}
+        <li><a href="{{item}}">{{item}}</a></li>
+        {% endfor %}
+    </ul>     
+</div>
+{% endblock %}
+
+
+

@@ -1,0 +1,21 @@
+{% extends "parent.html" %}
+{% block title %} {{header1}} {% endblock %}
+{% block head %}<script src="https://kit.fontawesome.com/98be66497e.js" crossorigin="anonymous"></script>{% endblock %}
+{% block content %} 
+<div class="col s1">
+</div>
+<div class="col s3">
+    <h2 style="color:transparent">Thank You!</h2>
+    <p class="mono">
+      <a href="mailto:yan@yan.fi"><i class="material-icons">email</i>  yan@yan.fi</a><br>
+      <a href="http://cv.yan.fi"><i class="material-icons">tag_faces</i>  More details at cv.yan.fi</a><br>
+      <a href="https://github.com/yyyaaan/metadata/tree/main/yCrawl"><i class="material-icons">developer_board</i>  Metadata Hub</a><br>
+    </p>
+ </div>
+<div class="col s8">
+    <h1>{{header1}}</h1>
+    <p> {{text1}} </p>
+ </div>
+{% endblock %}
+{% block contentmore %} 
+{% endblock %}

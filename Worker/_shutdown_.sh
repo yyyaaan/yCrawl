@@ -12,7 +12,7 @@ gsutil  -q -m \
         -h "Content-Encoding:gzip" \
         mv -z pp \
         *.pp \
-        gs://ycrawl-data/$runmode/$(date +"%Y%m")/$(date +"%d")
+        gs://staging.yyyaaannn.appspot.com/$runmode/$(date +"%Y%m")/$(date +"%d")
 
 
 ### archive to zip, -m remove files, -q quiet, bot png and pp
