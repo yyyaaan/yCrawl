@@ -19,8 +19,8 @@ __pycache__/
 /setup.cfg
 local_dev.sh
 
-# non-GAE related
-local_dev.sh
-.md
+# non-GAE related - IMPROTANT to limit size
 DataProcessor/
-Woker/
+Worker/local_dev.sh
+.DS_Store
+*.md

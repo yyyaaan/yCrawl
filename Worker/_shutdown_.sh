@@ -18,4 +18,4 @@ gsutil  -q -m \
 ### archive to zip, -m remove files, -q quiet, bot png and pp
 ### zip -q -m $(date +"%Y%m%d_%H%M%S.zip") *.p*
 
-gcloud logging write y_simple_log "$VMID $1 upload succeeded" --severity="INFO"
+gcloud logging write y_simple_log "$VMID $1 upload to staging succeeded" --severity="INFO"
