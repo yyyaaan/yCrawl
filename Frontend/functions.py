@@ -1,3 +1,4 @@
+from email.policy import default
 from config import *
 from json import dumps
 from datetime import datetime
@@ -9,7 +10,7 @@ GS_CLIENT_BUCKET = storage.Client().get_bucket(GSBUCKET)
 
 def on_all_completed(run_mode=RUN_MODE):
     blob = GS_CLIENT_BUCKET.blob(f'{run_mode}/{datetime.now().strftime("%Y%m/%d")}/0_meta_on_completion.json')
-    blob.upload_from_string(dumps(META, indent=4))
+    blob.upload_from_string(dumps(META, indent=4, default=str))
     print(f"Finalized crawlers job - metadata saved")
     return True
 
@@ -21,7 +22,7 @@ def done_for_today(run_mode=RUN_MODE):
 
 def prepare_on_a_new_day():
     blob = GS_CLIENT_BUCKET.blob(f'meta/meta_{datetime.now().strftime("%Y%m%d")}.json')
-    blob.upload_from_string(dumps(META, indent=4))
+    blob.upload_from_string(dumps(META, indent=4, default=str))
     return True
 
 

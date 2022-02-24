@@ -17,6 +17,10 @@
             {% endfor %}
         </div>
     </div>
+    <pre class="log-print">
+        {{jobs_str}}
+        {% for one_cost in costs %}({{one_cost.date}}){{one_cost.usd}}  {% endfor %}
+    </pre>
 </div>
 
 <div class="col s12 m3"  style="background-color:ghostwhite">

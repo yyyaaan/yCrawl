@@ -3,6 +3,7 @@ from Coordinator.main import call_coordinator
 from Frontend.vmmanager import SECRET, vm_list_all, vm_shutdown, vm_startup
 from Frontend.functions import *
 from Frontend.monitor import *
+from Frontend.costmanager import *
 
 # other global vars from functions
 app = Flask(__name__)
@@ -133,6 +134,7 @@ def overview():
         n_jobs = f"{n_all-n_todo}/{n_all}",
         jobs_detail = f"{n_done} completed<br/>{nu_error}({n_error})+{n_forfeit} issues",
         jobs_str = info,
+        costs = aws_cost(days=3),
         vm_status_list = vm_list,
         vm_running_n = f"{n_running} of {len(vm_list)}",
         logs_by_vm = logs_by_vm)
