@@ -1,6 +1,8 @@
 from datetime import datetime
 import re
 
+from pandas import DataFrame
+
 # supporting lambdas, note for use of comma and dot
 extract_float = lambda x: float(re.sub(r"[^\d]+", "", x)) 
 get_float = lambda x: float(re.sub(r"[^\d\.]+", "", x.replace(",", ".")))
@@ -8,10 +10,6 @@ parse_floats = lambda x: [get_float(xx.get_text()) for xx in x]
 parse_ccy = lambda x: "EUR" if "€" in x[0].get_text() else "USD"
 parse_texts = lambda x: [xi.get_text(strip=True) for xi in x]
 
-def printinfo(msg):
-    global MSG
-    MSG += f"\n{msg}"
-    print(msg)
 
 ###############################################################################################
 #   ____      _                      _     _     _            __       _ ____   ___  _   _     
@@ -23,8 +21,7 @@ def printinfo(msg):
 
 def cook_marriott(soup):
     if soup.flag.string != "Available":
-        printinfo(f"Unavialbe reported by {soup.qurl.string}")
-        return None
+        raise Exception("Unavailable or sold out")
     
     cico = [datetime.strptime(x, "%a, %b %d, %Y").date() 
         for x in soup.select_one("#staydates").select_one("div.is-visible").get_text(strip=True).split("―")]
@@ -39,6 +36,7 @@ def cook_marriott(soup):
         "ccy": room.select_one("span.nightly.t-nightly").get_text(strip=True).split(" ")[0],
         "check_in": cico[0],
         "check_out": cico[1],
+        "nights": int((cico[1] - cico[0]).days),
         "vmid": soup.vmid.string,
         "ts": soup.timestamp.string
     } for room in soup.select("div.room-rate-results.rate-type.t-box-shadow")]
@@ -49,11 +47,12 @@ def cook_marriott(soup):
 
 def cook_accor(soup):
     if soup.flag.string != "Available":
-        printinfo(f"Unavialbe reported by {soup.qurl.string}")
-        return None
+        raise Exception("Unavailable or sold out")
 
     cico = [datetime.strptime(x.strip(), "%B %d, %Y").date()
             for x in soup.select_one("p.basket-hotel-info__stay").get_text().split("\n") if x.strip() !=""]
+
+    nights = int((cico[1] - cico[0]).days)
 
     json_list = [{
         "hotel": soup.select_one("h3.basket-hotel-info__title").get_text(strip=True),
@@ -61,16 +60,19 @@ def cook_accor(soup):
         "rate_type": [x.select_one("span").get_text(strip=True) for x in room.select(".offer__options")],
         #"rate_sum_pre": parse_floats(room.select(".offer__price")),
         #"rate_sum_tax": parse_floats(room.select(".pricing-details__taxes")),
+        "rate_avg": [(a+b)/nights for a,b in zip(parse_floats(room.select(".offer__price")), 
+                                        parse_floats(room.select(".pricing-details__taxes")))],
         "rate_sum": [a+b for a,b in zip(parse_floats(room.select(".offer__price")), 
                                         parse_floats(room.select(".pricing-details__taxes")))],
         "ccy": parse_ccy(room.select(".offer__price")),
         "check_in": cico[0],
         "check_out": cico[1],
+        "nights": nights,
         "vmid": soup.vmid.string,
         "ts": soup.timestamp.string
     } for room in soup.select("li.list-complete-item")]
 
-    # explode(["rate_type", "rate_sum"])
+    # explode(["rate_type", "rate_sum", "rate_avg"])
     return json_list
 
 
@@ -83,23 +85,23 @@ def cook_hilton(soup):
 
     # two types of rates listed (either one should be available)
     rates = soup.select("[data-testid='moreRatesButton']") + soup.select("[data-testid='quickBookPrice']")
+    nights = int((cico[1] - cico[0]).days)
 
     json_data = {
         "hotel": soup.select_one("span.relative.inline-block").get_text(strip=True),
         "room_type": [x.get_text(strip=True) for x in soup.select("[data-testid='roomTypeName']")],
         "rate_type": "Best Rate Advertised",
         "rate_avg": parse_floats(rates),
+        "rate_sum": [x * nights for x in parse_floats(rates)],
         "ccy": parse_ccy(rates),
         "check_in": cico[0],
         "check_out": cico[1],
+        "nights": nights,
         "vmid": soup.vmid.string,
         "ts": soup.timestamp.string
     }
-
-    if len(json_data["room_type"]) != len(json_data["rate_avg"]):
-        printinfo(f"\nData issue in room-rate length {soup.qurl.string}")
-        return None
-
+    
+    # explode(["rate_type", "rate_sum", "rate_avg"])
     return [json_data]
 
 
@@ -108,22 +110,23 @@ def cook_fourseasons(soup):
     cico = soup.select_one(".search-summary__form-field--check-in-check-out > div").get_text().split(" - ")
     cico = [datetime.strptime(x.strip(), "%m/%d/%Y").date() for x in cico]
 
+    nights = int((cico[1] - cico[0]).days)
+
     json_data = {
         "hotel": "Four Seasons " + soup.select_one("div.search-summary__form-field__value").get_text(strip=True),
         "room_type": [x.get_text(strip=True) for x in soup.select(".room-item-title")],
         "rate_type": "Best Rate Advertised",
         "rate_avg": [float(re.sub(r"[^\d\.]+", "", x)) for x in price_str],
+        "rate_sum": [float(re.sub(r"[^\d\.]+", "", x)) * nights for x in price_str],
         "ccy": price_str[0][0:3],
         "check_in": cico[0],
         "check_out": cico[1],
+        "nights": nights,
         "vmid": soup.vmid.string,
         "ts": soup.timestamp.string
     }
 
-    if len(json_data["room_type"]) != len(json_data["rate_avg"]):
-        printinfo(f"\nData issue in room-rate length {soup.qurl.string}")
-        return None
-
+    # explode(["room_type", "rate_avg", "rate_sum"])
     return [json_data]
 
 
@@ -156,5 +159,3 @@ def cook_error(soup):
         "uurl": ".".join(soup.qurl.string.split(".")[1:]),
         "errm": parse_texts(soup.timestamp.next_elements)[-1]
     }]
-
-

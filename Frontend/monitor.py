@@ -21,11 +21,12 @@ def storage_file_viewer(run_mode=RUN_MODE):
         "uurl": uurls_by_key[the_key]
     } for the_key in [x['key'].split("_")[1] for x in all_uurls] ]
 
+    count_err = lambda lst: len([y for y in lst if "ERR" in y])
     main_list = [{
         "key": x["key"],
         "server": revert_batch[x["batchn"]],
         "brand": x["uurl"].split(".")[1].upper(),
-        "desc": "OK" if len(x["link"]) else f'{len([y for y in x["link"] if "ERR" in y])}E',
+        "desc": f'{count_err(x["link"])}E' if count_err(x["link"]) else "OK",
         "link": x["link"],
         "uurl": x["uurl"]
     } for x in main_list_draft]

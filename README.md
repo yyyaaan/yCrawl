@@ -42,10 +42,25 @@ No environment key required. Secret keys are managed by cloud secret management 
 
 - In worker, minimal packages are used. For example, GCP operations are hand to gsutil command line. AUTHKEY is managed by Cloud Secret Manager, and registered to system environment dynamically.
 
-### Workder Deployment
+### Worker Deployment
 - Configure availability, meta-data and API access during creation
 - Run `__init__.sh` manually (recommended) or git first and call the sh
 - Check path and python3, nodes versions
 - Confirm service account rights (bucket, secret accessor)
+
+### Beautiful Soup for yCrawl notes
+
+Parse bytes (instead of String) with "html.parser" to avoid excessive speical characters.
+
+Cooked-data is not validated before returing, and will be checked in DataFrame before exploding.
+
+Accor: [ccy, rate_avg] and rate_sum calculated as pre_tax+tax. multiple json, list element.
+
+Four Seasons: [rate_sum] single json, list element.
+
+Hilton: [ccy, rate_sum] single json, list element.
+
+Marriott: [] multiple json, list element.
+
 
 

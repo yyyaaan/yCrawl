@@ -1,5 +1,5 @@
-from email.policy import default
 from config import *
+from Frontend.monitor import storage_file_viewer
 from json import dumps
 from datetime import datetime
 from google.cloud import logging, storage, secretmanager
@@ -10,7 +10,10 @@ GS_CLIENT_BUCKET = storage.Client().get_bucket(GSBUCKET)
 
 def on_all_completed(run_mode=RUN_MODE):
     blob = GS_CLIENT_BUCKET.blob(f'{run_mode}/{datetime.now().strftime("%Y%m/%d")}/0_meta_on_completion.json')
-    blob.upload_from_string(dumps(META, indent=4, default=str))
+    list_to_save, info_str = storage_file_viewer()
+    json_to_save = META
+    json_to_save['file-completed'] = list_to_save
+    blob.upload_from_string(dumps(json_to_save, indent=4, default=str))
     print(f"Finalized crawlers job - metadata saved")
     return True
 
@@ -18,12 +21,6 @@ def on_all_completed(run_mode=RUN_MODE):
 def done_for_today(run_mode=RUN_MODE):
     all_files = [x.name for x in GS_CLIENT_BUCKET.list_blobs(prefix=f'{run_mode}/{datetime.now().strftime("%Y%m/%d")}')]
     return (len([x for x in all_files if "meta_on_completion" in x]) > 0)
-
-
-def prepare_on_a_new_day():
-    blob = GS_CLIENT_BUCKET.blob(f'meta/meta_{datetime.now().strftime("%Y%m%d")}.json')
-    blob.upload_from_string(dumps(META, indent=4, default=str))
-    return True
 
 
 def determine_all_completed(caller, servers_required):

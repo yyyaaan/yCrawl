@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response, url_for
+from flask import Flask, render_template, request, Response
 from Coordinator.main import call_coordinator
 from Frontend.vmmanager import SECRET, vm_list_all, vm_shutdown, vm_startup
 from Frontend.functions import *
@@ -15,15 +15,6 @@ RES400 = Response("Error", 400)
 def main():
     return render_template("welcome.html", header1="YYYaaannn App Engine", text1="There is nothing here.")
     
-
-# cron job only - NOT ACTIVE - function repalced by on_all_completed
-@app.route("/newday")
-def newday():
-    if not request.headers.get('X-Appengine-Cron'):
-        return RES403
-    status = prepare_on_a_new_day()
-    return ("Success" if status else "Error"), (200 if status else 400)
-
 
 # cron job only
 @app.route("/checkin")
@@ -67,7 +58,11 @@ def vmaction():
             return RES403
         vmid, action = request.form['VMID'], request.form['ACTION']
         vm_startup(vmid) if action == "START" else vm_shutdown(vmid)
-        return render_template( "welcome.html", header1="VM Action Success", text1=f"Acknowledged and request forwareded {action} {vmid}")
+        return render_template( 
+            "welcome.html", 
+            header1="VM Action Success", 
+            text1=f"Acknowledged and request forwareded {action} {vmid}",
+            meta_redirect='<meta http-equiv="refresh" content="1;url=/sub-vmstatus" />')
     except Exception as e:
         print(f"VM control violation due to {str(e)}")
         return RES400
@@ -122,24 +117,6 @@ def coordinator():
         return Response({'success': False, 'reason': str(e)}, 400,  mimetype='application/json')
 
 
-
-@app.route("/overview")
-def overview():
-    logs_by_vm = get_simple_log()
-    n_running, vm_list = vm_list_all()
-    info, n_all, n_todo, n_done, n_forfeit, n_error, nu_error =  call_coordinator(info_only=True)
-    return render_template(
-        "overview.html",
-        completed_percent = f"{(1-n_todo/n_all):.2%}",
-        n_jobs = f"{n_all-n_todo}/{n_all}",
-        jobs_detail = f"{n_done} completed<br/>{nu_error}({n_error})+{n_forfeit} issues",
-        jobs_str = info,
-        costs = aws_cost(days=3),
-        vm_status_list = vm_list,
-        vm_running_n = f"{n_running} of {len(vm_list)}",
-        logs_by_vm = logs_by_vm)
-
-
 @app.route('/simplelogging', methods=['POST', 'GET'])
 def simplelogging():
     # curl -i -H "Content-Type: application/json" -X POST -d '{"VMID":"y-crawl-x", "log": "new log service"}' http://127.0.0.1:8080/simplelogging
@@ -173,6 +150,33 @@ def files():
         count=len(links),
         items=sorted(links))
 
+
+
+@app.route("/sub-logviewer")
+def sub_logviewer():
+    return render_template( "sub-logviewer.html", costs=aws_cost(days=5), logs_by_vm=get_simple_log())
+
+
+@app.route("/sub-vmstatus")
+def sub_vmstatus():
+    n_running, vm_list = vm_list_all()
+    return render_template("sub-vmstatus.html", vm_status_list=vm_list)
+
+
+@app.route("/overview")
+def overview():
+    info, n_all, n_todo, n_done, n_forfeit, n_error, nu_error =  call_coordinator(info_only=True)
+    all_files, info_str = storage_file_viewer(META['scope'])
+    return render_template(
+        "overview.html",
+        completed_percent = f"{(1-n_todo/n_all):.2%}",
+        n_jobs = f"{n_all-n_todo}/{n_all}",
+        jobs_detail = f"{n_done} completed<br/>{nu_error}({n_error})+{n_forfeit} issues",
+        jobs_str = info,
+        info_str = info_str,
+        all_files = all_files,
+        gs_link = f"https://console.cloud.google.com/storage/browser/{GSBUCKET}/{RUN_MODE}/{datetime.now().strftime('%Y%m/%d')}",
+        )
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080, debug=True)

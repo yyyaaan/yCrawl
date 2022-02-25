@@ -18,48 +18,17 @@
         word-wrap: normal;
     }
      </style>
-    <!-- Extra -->
     {% block head %}
-    {% endblock %}
+    {% endblock %}     
 </head>
 
 <body>
-
-    <ul id="slide-out" class="sidenav">
-        <li>
-            <div class="user-view">
-                <div class="background">
-                    <img src="https://yan.fi/cv/static/images/theme.png">
-                </div>
-            </div>
-        </li>
-        <li><a href="https://console.cloud.google.com/logs/query?project=yyyaaannn&authuser=1"><i class="material-icons">burst_mode</i>All logs</a></li>
-        <li><a href="{{ url_for('overview') }}"><i class="material-icons">layers</i>Overview</a></li>
-        <li>
-            <div class="divider"></div>
-        </li>
-        <li><a href="https://yan.fi/"><i class="material-icons">pages</i>Link to main</a></li>
-        <li><a onclick="M.toast({html: 'Cheers! I am a toast'})" class="waves-effect" href="#!"><i
-                    class="material-icons">pets</i>Have a Toast</a></li>
-    </ul>
-
-    <!--open side nav-->
-    <div class="row">
-        <div class="col s1">
-            <a id="the-menu" href="#" data-target="slide-out" class="sidenav-trigger"><i
-                    class="material-icons">menu</i></a>
-        </div>
-    </div>
-
     <!--main contents-->
     <div class="row">
         {% block content %}{% endblock %}
     </div>
     <div class="row">
         {% block contentmore %}{% endblock %}
-    </div>
-    <div class="row">
-        {% block contentevenmore %}{% endblock %}
     </div>
 
     <!--scripts-->

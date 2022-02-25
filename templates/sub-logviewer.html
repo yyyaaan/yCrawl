@@ -1,0 +1,26 @@
+{% extends "parentsub.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %} 
+<div class="col s12">
+    <div class="card">
+        <div class="card-tabs">
+            <ul class="tabs tabs-fixed-width">
+                {% for one_log in logs_by_vm %}
+                <li class="tab"><a href="#{{one_log.name}}">{{one_log.name}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card-content grey lighten-4">
+            {% for one_log in logs_by_vm %}
+            <div id="{{one_log.name}}"><pre style="max-height: 300px; overflow: auto;">{% autoescape false %}{{one_log.logs}}{% endautoescape %}</pre></div>
+            {% endfor %}
+        </div>
+    </div>
+    <pre class="log-print">
+        {% for one_cost in costs %}({{one_cost.date}}){{one_cost.usd}}  {% endfor %}
+    </pre>
+</div>
+{% endblock %}

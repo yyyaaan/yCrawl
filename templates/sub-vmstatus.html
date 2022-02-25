@@ -1,0 +1,24 @@
+{% extends "parentsub.html" %}
+
+{% block content %} 
+<div class="col s12">
+    <ul class="collapsible popout">
+        {% for vm in vm_status_list %}
+        <li>
+            <div class="collapsible-header">{{vm.header}}</div>
+            <div class="collapsible-body">
+                <div class="right-align">
+                    <form action="/vmaction" method="post">
+                        <input type="hidden" name="VMID" value="{{vm.vmid}}">
+                        <input type="password" name="PASS" style="width: 150px;">
+                        <button class="btn-flat" name="ACTION" value="START">START</button>
+                        <button class="btn-flat" name="ACTION" value="STOP">STOP</button>
+                    </form>
+                </div>
+                <pre id="vm-detail" class="log-print" style="display: block;">{% autoescape false %}{{vm.content}}{% endautoescape %}</pre>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>     
+</div>
+{% endblock %}
