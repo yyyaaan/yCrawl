@@ -32,11 +32,10 @@ TAG_FULL = datetime.now().strftime("%Y%m/%d")
 
 ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f'{RUN_MODE}/{TAG_FULL}')]
 ALL_FILES = [x for x in ALL_FILES if x.endswith(".pp")]
-from random import choices
-ALL_FILES = choices(ALL_FILES, k=50) 
+# from random import choices
+# ALL_FILES = choices(ALL_FILES, k=50) 
 
 
-# save BIG_STR to achive
 def save_big_str(one_str):
     global BIG_THRESHOLD, BIG_N, BIG_STR, PART_N, SEP_STR
     BIG_STR += "<!--NEW FILE--->" + one_str
