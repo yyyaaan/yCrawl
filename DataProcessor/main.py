@@ -30,10 +30,10 @@ BIG_THRESHOLD, BIG_N, PART_N, BIG_STR = 200, 0, 1, ""
 TAG_SHORT = datetime.now().strftime("%Y%m/%Y%m%d")
 TAG_FULL = datetime.now().strftime("%Y%m/%d")
 
-ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f'{RUN_MODE}/{TAG_FULL}')]
+ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f"{RUN_MODE}/{TAG_FULL}")]
 ALL_FILES = [x for x in ALL_FILES if x.endswith(".pp")]
 # from random import choices
-# ALL_FILES = choices(ALL_FILES, k=50) 
+# ALL_FILES = choices(ALL_FILES, k=100) 
 
 
 def save_big_str(one_str):
@@ -54,7 +54,7 @@ def save_big_str(one_str):
 # exceptions are forwarded (excl. sold out) 
 def save_exception_str(name, sstr):
     (GS_OUTPUTS
-        .blob(f'Exceptions/{TAG_SHORT}_{name}')
+        .blob(f'yCrawl_Exceptions/{TAG_SHORT}_{name}')
         .upload_from_string(sstr)
     )
 
@@ -118,20 +118,21 @@ def main():
     df_errs = DataFrame(list_errs)
 
     # %% file movement 
-    df_flights.to_parquet('./cache/df_flights.parquet.gzip', compression='gzip')
-    df_hotels.to_parquet('./cache/df_hotels.parquet.gzip', compression='gzip')
-    df_errs.to_parquet('./cache/df_errs.parquet.gzip', compression='gzip')
+    df_flights.to_parquet('df_flights.parquet.gzip', compression='gzip')
+    df_hotels.to_parquet('df_hotels.parquet.gzip', compression='gzip')
+    df_errs.to_parquet('df_errs.parquet.gzip', compression='gzip')
 
-    system(
-        f"gsutil mv ./cache/*.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_SHORT}/"
-    )
+    system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_FULL}/")
 
     # move erroreouns files
-    [system(
-        f"gsutil cp gs://{str(GS_STAGING.name)}/{x} gs://{str(GS_OUTPUTS.name)}/{x.replace(RUN_MODE,'ReviewFiles')}" 
-    ) for x in [y['filename'] for y in files_exception if "sold out" not in y["exception"]]]
+    errfiles = [f"gs://{str(GS_STAGING.name)}/{x}" for x in [y['filename'] for y in files_exception if "sold out" not in y["exception"]]]
+    if len(errfiles):
+        with open("tmplist", "w") as f:
+            f.write("\n".join(errfiles))
+        system(f"cat tmplist | gsutil -m cp -I gs://{str(GS_OUTPUTS.name)}/yCrawl_Review/{TAG_FULL}/")
 
     # source files are lifecycle controller, no need to delete
 
 if __name__ == "__main__":
     main()
+
