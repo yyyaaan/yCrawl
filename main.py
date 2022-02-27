@@ -3,7 +3,6 @@ from Coordinator.main import call_coordinator
 from Frontend.vmmanager import SECRET, vm_list_all, vm_shutdown, vm_startup
 from Frontend.functions import *
 from Frontend.monitor import *
-from Frontend.costmanager import *
 
 # other global vars from functions
 app = Flask(__name__)
@@ -154,7 +153,7 @@ def files():
 
 @app.route("/sub-logviewer")
 def sub_logviewer():
-    return render_template( "sub-logviewer.html", costs=aws_cost(days=5), logs_by_vm=get_simple_log())
+    return render_template( "sub-logviewer.html", logs_by_vm=get_simple_log())
 
 
 @app.route("/sub-vmstatus")
@@ -179,6 +178,6 @@ def overview():
         )
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8080, debug=True)
+    app.run(host="127.0.0.1", port=7999, debug=True)
 
  

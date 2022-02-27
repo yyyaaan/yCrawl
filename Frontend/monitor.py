@@ -21,12 +21,13 @@ def storage_file_viewer(run_mode=RUN_MODE):
         "uurl": uurls_by_key[the_key]
     } for the_key in [x['key'].split("_")[1] for x in all_uurls] ]
 
-    count_err = lambda lst: len([y for y in lst if "ERR" in y])
+    count_err_ok = lambda lst: f"{len([y for y in lst if 'ERR' not in y])}OK{len([y for y in lst if 'ERR' in y])}E"
+
     main_list = [{
         "key": x["key"],
         "server": revert_batch[x["batchn"]],
         "brand": x["uurl"].split(".")[1].upper(),
-        "desc": f'{count_err(x["link"])}E' if count_err(x["link"]) else "OK",
+        "desc": count_err_ok(x["link"]).replace("0E", "").replace("1OK","OK").replace("0OK", ""),
         "link": x["link"],
         "uurl": x["uurl"]
     } for x in main_list_draft]
@@ -40,7 +41,7 @@ def storage_file_viewer(run_mode=RUN_MODE):
     
     # sort has to be done in for
     for x in output_list:
-        x["len"] = f"{len([y for y in x['list'] if y['desc'] == 'OK'])} of {len(x['list'])}"
+        x["len"] = f"{len([y for y in x['list'] if 'OK' in y['desc']])} of {len(x['list'])}"
         x["list"].sort(key=lambda x: x["desc"] + x["key"])
 
     return output_list, info_str

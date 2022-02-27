@@ -22,6 +22,10 @@ local_dev.sh
 # non-GAE related - IMPROTANT to limit size
 DataProcessor/
 Worker/
+node_modules/
 local_dev.sh
 .DS_Store
 *.md
+
+# local version (gunicorn wgsi)
+wsgi.py

@@ -27,8 +27,9 @@ GS_ARCHIVE = GS_CLIENT.get_bucket("ycrawl-data")
 
 BIG_THRESHOLD, BIG_N, PART_N, BIG_STR = 200, 0, 1, ""
 
-TAG_SHORT = datetime.now().strftime("%Y%m/%Y%m%d")
-TAG_FULL = datetime.now().strftime("%Y%m/%d")
+TAG_SHORT = datetime.now().strftime("%Y%m/%Y%m%d") # when naming object with prefix
+TAG_FULL = datetime.now().strftime("%Y%m/%d") # when using full path
+TAG_Ym, TAG_Ymd = datetime.now().strftime("%Y%m/"), datetime.now().strftime("%Y%m%d")
 
 ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f"{RUN_MODE}/{TAG_FULL}")]
 ALL_FILES = [x for x in ALL_FILES if x.endswith(".pp")]
@@ -118,11 +119,11 @@ def main():
     df_errs = DataFrame(list_errs)
 
     # %% file movement 
-    df_flights.to_parquet('df_flights.parquet.gzip', compression='gzip')
-    df_hotels.to_parquet('df_hotels.parquet.gzip', compression='gzip')
-    df_errs.to_parquet('df_errs.parquet.gzip', compression='gzip')
+    df_flights.to_parquet(f"{TAG_Ymd}_flights.parquet.gzip", compression='gzip')
+    df_hotels.to_parquet(f"{TAG_Ymd}_hotels.parquet.gzip", compression='gzip')
+    df_errs.to_parquet(f"{TAG_Ymd}_errs.parquet.gzip", compression='gzip')
 
-    system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_FULL}/")
+    system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_Ym}/")
 
     # move erroreouns files
     errfiles = [f"gs://{str(GS_STAGING.name)}/{x}" for x in [y['filename'] for y in files_exception if "sold out" not in y["exception"]]]
