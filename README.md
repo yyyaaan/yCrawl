@@ -56,6 +56,12 @@ Note that GAE does not send any message.
 - Check path and python3, nodes versions
 - Confirm service account rights (bucket, secret accessor)
 
+### Head Server Deployments and Tests
+
+Temporary deployment at fi-server, will be transited to smaller instances.
+
+Workload test is conducted on us-server: small memory is ok, but networking is NOT
+
 ### Beautiful Soup for yCrawl notes
 
 Parse bytes (instead of String) with "html.parser" to avoid excessive speical characters.

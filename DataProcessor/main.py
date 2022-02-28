@@ -33,8 +33,8 @@ TAG_Ym, TAG_Ymd = datetime.now().strftime("%Y%m/"), datetime.now().strftime("%Y%
 
 ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f"{RUN_MODE}/{TAG_FULL}")]
 ALL_FILES = [x for x in ALL_FILES if x.endswith(".pp")]
-from random import choices
-ALL_FILES = choices(ALL_FILES, k=100) 
+# from random import choices
+# ALL_FILES = choices(ALL_FILES, k=100) 
 
 
 def save_big_str(one_str):
