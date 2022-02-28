@@ -5,9 +5,6 @@
 # add new NodeJS to repo, will run apt-update automatically
 curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 
-# one-line gcloud
-echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
-
 sudo apt-get install -y \
     apt-transport-https \
     ca-certificates \
@@ -48,14 +45,13 @@ sudo apt-get install -y \
     xdg-utils \
     zip
 
+# one-line gcloud
+echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
+
 git clone https://github.com/yyyaaan/yCrawl
 
 cd ~/yCrawl/Worker
-
-# package.json
 npm install
-
-# cache directory
 mkdir cache
 
 
@@ -71,7 +67,7 @@ mkdir cache
 
 # GCP service account, if necessary
 GOOGLE_APPLICATION_CREDENTIALS="/.gcp.json" && echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS" | sudo tee -a /etc/environment
-gcloud config set project ...
+gcloud config set project yyyaaannn
 gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 
 # Configuration to tell coordinator
@@ -166,7 +162,8 @@ WantedBy=multi-user.target
 EOT
 
 
-# Activate the services
+# Activate the services 
+# nano /usr/local/bin/ycrawl-shutdown.sh #nano /etc/systemd/system/ycrawl-init.service
 sudo chmod 744 /usr/local/bin/ycrawl-startup.sh /usr/local/bin/ycrawl-shutdown.sh
 sudo chmod 664 /etc/systemd/system/ycrawl-init.service /etc/systemd/system/ycrawl-quit.service
 sudo systemctl daemon-reload

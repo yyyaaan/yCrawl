@@ -1,5 +1,6 @@
 Worker/cache/
 DataProcessor/cache/
+test.py
 local_dev.sh
 .DS_Store
 # includes both Node and Python template

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, redirect, render_template, request, Response
 from Coordinator.main import call_coordinator
 from Frontend.vmmanager import SECRET, vm_list_all, vm_shutdown, vm_startup
 from Frontend.functions import *
@@ -9,11 +9,12 @@ app = Flask(__name__)
 RES403 = Response("Forbidden", 403)
 RES400 = Response("Error", 400)
 
-
 @app.route("/")
 def main():
-    return render_template("welcome.html", header1="YYYaaannn App Engine", text1="There is nothing here.")
-    
+    if request.headers.get('X-Cloud-Trace-Context'):
+        return render_template("welcome.html", header1="YYYaaannn App Engine", text1="There is nothing here.")
+    else:
+        return redirect("/overview", code=302)
 
 # cron job only
 @app.route("/checkin")
@@ -60,8 +61,7 @@ def vmaction():
         return render_template( 
             "welcome.html", 
             header1="VM Action Success", 
-            text1=f"Acknowledged and request forwareded {action} {vmid}",
-            meta_redirect='<meta http-equiv="refresh" content="1;url=/sub-vmstatus" />')
+            text1=f"Acknowledged and request forwareded {action} {vmid}")
     except Exception as e:
         print(f"VM control violation due to {str(e)}")
         return RES400

@@ -150,24 +150,29 @@ def azure_vm_shutdown(vmid, resource_group):
 #   / ___ \ V  V /  ___) |  / ___ \| | | | | | (_| |/ / (_) | | | |
 #  /_/   \_\_/\_/  |____/  /_/   \_\_| |_| |_|\__,_/___\___/|_| |_|
 # IAM User/Role Pair ###############################################
-                                                                                                 
+################################ AWS need region-sepcific client ###                                                                                                 
 import boto3
 
+def aws_get_client(instance_id):
+    # client is region-binded, so need to determine proper cliente
+    aws_regions = dict([(x['resource'], x['zone'][:-1]) for x in META['cluster'] if x['provider'] == "AWS"])
 
-EC2_CLIENT = boto3.client(
-    "ec2",
-    region_name = 'eu-north-1',
-    aws_access_key_id=SECRET['AWS_ACCESS_KEY'],
-    aws_secret_access_key=SECRET['AWS_SECRET']
-)
+    return boto3.client(
+        "ec2",
+        region_name = aws_regions[instance_id],
+        aws_access_key_id=SECRET['AWS_ACCESS_KEY'],
+        aws_secret_access_key=SECRET['AWS_SECRET']
+    )
 
 
-def aws_list_instances(InstanceIds=["i-05baaec0fe7fe4d66", "i-02cbbe151eb2f655c"]):
+def aws_list_instances(instance_ids=["i-05baaec0fe7fe4d66", "i-07a9cb47522f26bf8"]):
 
     out_list, n_running = [], 0
-    instance_list = EC2_CLIENT.describe_instances(InstanceIds=InstanceIds)
+
+    instance_list = [aws_get_client(one_id).describe_instances(InstanceIds=[one_id]) for one_id in instance_ids]
     
-    for instance in instance_list['Reservations'][0]['Instances']:
+    for instance_info in instance_list:
+        instance = instance_info['Reservations'][0]['Instances'][0]
         out_list.append({
             "vmid": str(instance['Tags'][0]['Value']),
             "header": f"{instance['Tags'][0]['Value']} {instance['State']['Name'].upper()} ({instance['Placement']['AvailabilityZone']}) {instance['InstanceType']}",
@@ -181,12 +186,14 @@ def aws_list_instances(InstanceIds=["i-05baaec0fe7fe4d66", "i-02cbbe151eb2f655c"
 
 
 def aws_vm_startup(vmid, instance_id):
+
+    ec2_client = aws_get_client(instance_id)
     
-    vm_status = EC2_CLIENT.describe_instances(InstanceIds=[instance_id])['Reservations'][0]['Instances'][0]['State']['Name'].upper()
+    vm_status = ec2_client.describe_instances(InstanceIds=[instance_id])['Reservations'][0]['Instances'][0]['State']['Name'].upper()
     if vm_status != "RUNNING":
         print(f"VM Manager: restarting {vmid} (was {vm_status.upper().replace(' ', '')})")
         try:
-           EC2_CLIENT.start_instances(InstanceIds=[instance_id])        
+           ec2_client.start_instances(InstanceIds=[instance_id])        
         except Exception as e:
             print(f"VM Manager: restart failed due to {str(e)}")
             return False
@@ -197,7 +204,7 @@ def aws_vm_startup(vmid, instance_id):
 def aws_vm_shutdown(vmid, instance_id):
     print(f"Completion noted: shutting down {vmid}")
     try:
-        EC2_CLIENT.stop_instances(InstanceIds=[instance_id])
+        aws_get_client(instance_id).stop_instances(InstanceIds=[instance_id])
     except Exception as e:
         print(f"Completion noted: shutting down failed due to {str(e)}")
         return False
@@ -243,3 +250,7 @@ def vm_shutdown(vmid):
         status = aws_vm_shutdown(vmid=vmid, instance_id=AWS_VMLIST[vmid])
 
     return status
+
+
+
+

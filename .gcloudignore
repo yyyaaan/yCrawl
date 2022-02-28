@@ -18,14 +18,17 @@ __pycache__/
 # Ignored by the build system
 /setup.cfg
 local_dev.sh
+.DS_Store
+*.md
 
 # non-GAE related - IMPROTANT to limit size
 DataProcessor/
 Worker/
+Messenger/
 node_modules/
-local_dev.sh
-.DS_Store
-*.md
 
 # local version (gunicorn wgsi)
+main2.py
 wsgi.py
+test.py
+reqlocal.txt

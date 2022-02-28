@@ -1,12 +1,19 @@
 from config import *
 from Frontend.monitor import storage_file_viewer
 from json import dumps
+from requests import post
 from datetime import datetime
 from google.cloud import logging, storage, secretmanager
 
-
+DATA_ENDPOINT = META['DATA_ENDPOINT']
 GSM_CLIENT = secretmanager.SecretManagerServiceClient()
 GS_CLIENT_BUCKET = storage.Client().get_bucket(GSBUCKET)
+
+def get_secret(keyname="ycrawl-keep-alive"):
+    name = f"projects/yyyaaannn/secrets/{keyname}/versions/latest"
+    response = GSM_CLIENT.access_secret_version(request={"name": name})
+    return response.payload.data.decode("UTF-8")
+
 
 def on_all_completed(run_mode=RUN_MODE):
     blob = GS_CLIENT_BUCKET.blob(f'{run_mode}/{datetime.now().strftime("%Y%m/%d")}/0_meta_on_completion.json')
@@ -14,7 +21,12 @@ def on_all_completed(run_mode=RUN_MODE):
     json_to_save = META
     json_to_save['file-completed'] = list_to_save
     blob.upload_from_string(dumps(json_to_save, indent=4, default=str))
-    print(f"Finalized crawlers job - metadata saved")
+    try:
+        post(DATA_ENDPOINT, json = {"AUTH": get_secret("ycrawl-simple-auth")})
+    except Exception as e:
+        print("On all completed encounted erro: " + str(e))
+
+    print(f"Finalized crawlers job - metadata saved and data endpoint requested.")
     return True
 
 
@@ -62,10 +74,4 @@ def verify_cloud_auth(payload, keyname="ycrawl-simple-auth"):
     if not flag: 
         print("AUTH: access denied due - wrong key")
     return flag
-
-
-def get_secret(keyname="ycrawl-keep-alive"):
-    name = f"projects/yyyaaannn/secrets/{keyname}/versions/latest"
-    response = GSM_CLIENT.access_secret_version(request={"name": name})
-    return response.payload.data.decode("UTF-8")
 

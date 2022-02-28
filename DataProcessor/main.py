@@ -33,8 +33,8 @@ TAG_Ym, TAG_Ymd = datetime.now().strftime("%Y%m/"), datetime.now().strftime("%Y%
 
 ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f"{RUN_MODE}/{TAG_FULL}")]
 ALL_FILES = [x for x in ALL_FILES if x.endswith(".pp")]
-# from random import choices
-# ALL_FILES = choices(ALL_FILES, k=100) 
+from random import choices
+ALL_FILES = choices(ALL_FILES, k=100) 
 
 
 def save_big_str(one_str):
@@ -59,9 +59,17 @@ def save_exception_str(name, sstr):
         .upload_from_string(sstr)
     )
 
+def check_already_run():
+    return len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_SHORT}")]) >= 3
+
 
 # %%
 def main():
+
+    if check_already_run():
+        print("DataProcessor Step has been completed for today. No action for this request")
+        return()
+
     list_errs, list_flights, list_hotels, files_exception = [],[],[], []
     for one_filename in tqdm(ALL_FILES):
         try:

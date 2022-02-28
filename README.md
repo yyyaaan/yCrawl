@@ -13,6 +13,8 @@ __Worker__ is a virtual machine (or container) to actually do the job. To simpli
 
 __DataProcessor__ is the pipeline to perform ETL.
 
+__Messenger__ is webhook service, only for VM/local version, not in GAE
+
 ## Frontend Coordinator
 
 Stop signal includes Spot Instance interruption (Preemptible Notice), VM manager stop and manual stop. Spot instance should have sufficient time to complete the upload job when interrupted by platform; the stop service is registered in each Worker and is fail-safe.
@@ -41,6 +43,12 @@ No environment key required. Secret keys are managed by cloud secret management 
 ## Deployment and other concepts
 
 - In worker, minimal packages are used. For example, GCP operations are hand to gsutil command line. AUTHKEY is managed by Cloud Secret Manager, and registered to system environment dynamically.
+
+### Web Interface Deployment
+
+GAE has only a portion of services available. `main2` is an extension to `main`, where more localized services are included. Local version is to be deployed by `gunicorn`. The file `.gcloudignore` exclude the local versions and relevant code to be deployed in GAE.
+
+Note that GAE does not send any message.
 
 ### Worker Deployment
 - Configure availability, meta-data and API access during creation

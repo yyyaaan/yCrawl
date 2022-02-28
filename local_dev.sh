@@ -8,4 +8,4 @@ export AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-a
 export VMID="local-mac-os"
 
 # next version
-# gcloud app deploy --version prod1-d
+# gcloud app deploy --version prod1-h
