@@ -116,27 +116,6 @@ def coordinator():
         return Response({'success': False, 'reason': str(e)}, 400,  mimetype='application/json')
 
 
-@app.route('/simplelogging', methods=['POST', 'GET'])
-def simplelogging():
-    # curl -i -H "Content-Type: application/json" -X POST -d '{"VMID":"y-crawl-x", "log": "new log service"}' http://127.0.0.1:8080/simplelogging
-    if request.method == 'POST':
-        try:
-            print(request.json['log'])
-            return "Success", 200
-        except:
-            print("Error im Simple Logging Service")
-            return RES400
-
-    else:
-        try:
-            log_content = request.args.get('log')
-            print(log_content)
-            output_text = f"Simple Logging OK [{request.method}] Content: {log_content}"
-            return render_template("welcome.html", header1="Success", text1=output_text)
-        except:
-            return render_template("welcome.html", header1="Sorry!", text1=f"Request to Simple Logging Service Failed")
-
-
 @app.route('/files')
 def files():
     links = [rule.rule for rule in app.url_map.iter_rules()]
@@ -174,7 +153,8 @@ def overview():
         jobs_str = info,
         info_str = info_str,
         all_files = all_files,
-        gs_link = f"https://console.cloud.google.com/storage/browser/{GSBUCKET}/{RUN_MODE}/{datetime.now().strftime('%Y%m/%d')}",
+        gss_link = f"https://console.cloud.google.com/storage/browser/{GSBUCKET}/{RUN_MODE}/{datetime.now().strftime('%Y%m/%d')}",
+        gso_link = f"https://console.cloud.google.com/storage/browser/yyyaaannn-us/yCrawl_Output/{datetime.now().strftime('%Y%m')}",
         )
 
 if __name__ == "__main__":

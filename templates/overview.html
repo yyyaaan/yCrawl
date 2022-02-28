@@ -3,10 +3,10 @@
 
 
 {% block content %} 
-<div class="col s12 m3"  style="background-color:lightgray">
+<div class="col s12 m3"  style="background-color:snow">
     <h3>{{completed_percent}}</h3>
     <p>Completion of scheduled</p>
-    <p><a href="{{gs_link}}" target="_blank">{{info_str}}</a></p>
+    <p><a href="{{gss_link}}" target="_blank"><i class="material-icons">archive</i>{{info_str}}</a></p>
 </div>
 <div class="col s12 m9">
     <ul class="collapsible">
@@ -35,9 +35,13 @@
 <div class="col s12 m9">
     <iframe id="delayed-vm" width="100%" height="440" style="border:none;"></iframe>
 </div>
-<div class="col s12 m3"  style="background-color:lightgray">
+<div class="col s12 m3"  style="background-color:snow">
     <h3>{{n_jobs}}</h3>
     <p>{% autoescape false %}{{jobs_detail}}{% endautoescape %}</p>
+    
+    <p><a href="/rundata"> <i class="material-icons">assessment</i> </a>  
+       <a href="{{gso_link}}" target="_blank"><i class="material-icons">library_books</i></a>
+    </p>
 </div>
 {% endblock %}
 

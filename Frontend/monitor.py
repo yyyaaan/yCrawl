@@ -3,6 +3,16 @@ from datetime import datetime
 from google.cloud import logging, storage
 from Coordinator.main import fetch_all_urls
 
+
+
+def data_process_monitor(bucket_name="ycrawl-data"):
+        bucket = storage.Client().get_bucket(bucket_name)
+        info = [f"{x.name[-9:-4]} @ {datetime.fromtimestamp(x.generation/(10**6)).time()}" 
+                for x in bucket.list_blobs(prefix=f'BIGSTR/{datetime.now().strftime("%Y%m/%Y%m%d")}')]
+        info.append("Data Processor Endpoint is served only by POST.")
+        return "<br/>".join(info)
+
+
 def storage_file_viewer(run_mode=RUN_MODE):
 
     bucket = storage.Client().get_bucket(GSBUCKET)

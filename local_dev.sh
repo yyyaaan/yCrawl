@@ -1,11 +1,56 @@
 #! /bin/bash
-# only required on local development envrionment
 
 source activate base
 
-export GOOGLE_APPLICATION_CREDENTIALS="~/Documents/.credentials/gcp.json"
-export AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")
-export VMID="local-mac-os"
-
-# next version
 # gcloud app deploy --version prod1-h
+
+sudo apt install python3-pip python-is-python3 python3-certbot-nginx
+git clone https://github.com/yyyaaan/yCrawl
+
+
+#########################################################################
+#    ____             _                        _   _       _            
+#   / ___|_   _ _ __ (_) ___ ___  _ __ _ __   | \ | | __ _(_)_ __ __  __
+#  | |  _| | | | '_ \| |/ __/ _ \| '__| '_ \  |  \| |/ _` | | '_ \\ \/ /
+#  | |_| | |_| | | | | | (_| (_) | |  | | | | | |\  | (_| | | | | |>  < 
+#   \____|\__,_|_| |_|_|\___\___/|_|  |_| |_| |_| \_|\__, |_|_| |_/_/\_\
+#                                                    |___/              
+### Set up for yCrawl-Head (DataProcessor) ##############################
+
+# remove if existed
+# sudo rm -f /etc/systemd/system/ycrawl-head.service /etc/nginx/sites-enabled/ycrawl-head
+
+sudo tee -a /etc/systemd/system/ycrawl-head.service > /dev/null <<EOT
+[Unit]
+Description=Gunicorn service to yCrawl Head
+After=network.target
+
+[Service]
+User=yan
+Group=www-data
+WorkingDirectory=/home/yan/yCrawl
+ExecStart=gunicorn --workers 3 --bind unix:yCrawl.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target
+EOT
+
+sudo tee -a /etc/nginx/sites-enabled/ycrawl-head > /dev/null <<EOT
+server {
+    listen 80;
+    server_name app.yanpan.fi;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/yan/yCrawl/yCrawl.sock;
+    }
+}
+EOT
+
+sudo chmod 664 /etc/systemd/system/ycrawl-head.service
+sudo systemctl daemon-reload
+sudo systemctl enable ycrawl-head.service
+
+
+sudo certbot --nginx -d domain
+

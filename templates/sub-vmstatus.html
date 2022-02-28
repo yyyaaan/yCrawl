@@ -5,7 +5,7 @@
     <ul class="collapsible popout">
         {% for vm in vm_status_list %}
         <li>
-            <div class="collapsible-header">{{vm.header}}</div>
+            <div class="collapsible-header"><i class="material-icons">{{vm.icon}}</i>{{vm.header}}</div>
             <div class="collapsible-body">
                 <div class="right-align">
                     <form action="/vmaction" method="post">

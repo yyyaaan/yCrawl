@@ -14,7 +14,7 @@
  </div>
 <div class="col s8">
     <h1>{{header1}}</h1>
-    <p> {{text1}} </p>
+    <p> {% autoescape false %}{{text1}}{% endautoescape %} </p>
  </div>
 {% endblock %}
 {% block contentmore %} 

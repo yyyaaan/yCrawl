@@ -227,6 +227,8 @@ def vm_list_all():
     
     vm_list = vm_list1 + vm_list2 + vm_list3
     vm_list.sort(key=lambda x: x["header"])
+    for i, x in enumerate(vm_list):
+        x["icon"] = f"filter_{i+1}"
 
     return n_running1 + n_running2 + n_running3, vm_list
 
