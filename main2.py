@@ -33,7 +33,8 @@ def sendline():
     if not verify_cloud_auth(request.json): 
         return RES403
     try:
-        send_line(target=request.json["TO"], text=request.json["TEXT"], flex=request.json["FLEX"])
+        flex_json = request.json["FLEX"] if "FLEX" in request.json else None
+        send_line(target=request.json["TO"], text=request.json["TEXT"], flex=flex_json)
     except Exception as e:
         print(f"fail to send line due to {str(e)}")
     

@@ -11,7 +11,7 @@ from google.cloud import bigquery
 
 # %%
 BQ_CLIENT = bigquery.Client()
-LINEMSG_ENDPOINT = "http://127.0.0.1:7999/sendline"
+LINEMSG_ENDPOINT = "https://app.yanpan.fi/sendline"
 
 # bigquery.enums.WriteDisposition.WRITE_TRUNCATE
 

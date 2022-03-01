@@ -54,6 +54,9 @@ sudo systemctl enable ycrawl-head.service
 sudo apt install python3-certbot-nginx
 sudo certbot --nginx -d domain
 
+
+AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")  && echo "AUTHKEY=$AUTHKEY" | sudo tee -a /etc/environment
+
 # cron job to update, restart daily - ensure date tag is correct, check `date` to ensure timezone
 nano /ect/crontab
 15 0    1 * *   root    sudo systemctl stop ycrawl-head && cd /home/yan/yCrawl && git pull && sudo systemctl start ycrawl-head

@@ -38,13 +38,14 @@ flowchart LR
     subgraph Storage
     BucketS[(Staging Bucket)]
     BucketO[(Output Bucket)]
-    BQ[(BigQuery)]
+    BQ[(BigQuery/SQL DB)]
     end
 
     subgraph Dedicated-Processors
     DP(Data Processor)
     UP(Data Upload Service)
     M(Monitoring Interface)
+    MSG(Real-time Messeging & Reporting)
     end
 
     VM -->|Start| Multi-Cloud-VMs -.->|All Done| CE -.-> AllDone
@@ -53,7 +54,9 @@ flowchart LR
     Multi-Cloud-VMs -->|On Stopping| BucketS
 
     AllDone -->|All Completed| DP
-    BucketS --> DP --> BucketO -->|File Trigger| UP --> BQ
+    BucketS --> DP -->|Raw-Parquet| BucketO -->|File Trigger?| UP --> BQ
+
+    BQ --> Dashboard
 ```
 ### VM Manager and Status
 
