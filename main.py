@@ -151,7 +151,7 @@ def overview():
         n_jobs = f"{n_all-n_todo}/{n_all}",
         jobs_detail = f"{n_done} completed<br/>{nu_error}({n_error})+{n_forfeit} issues",
         jobs_str = info,
-        info_str = info_str,
+        info_str = f"  {DATE_STR[4:]}  {info_str}",
         all_files = all_files,
         gss_link = f"https://console.cloud.google.com/storage/browser/{GSBUCKET}/{RUN_MODE}/{datetime.now().strftime('%Y%m/%d')}",
         gso_link = f"https://console.cloud.google.com/storage/browser/yyyaaannn-us/yCrawl_Output/{datetime.now().strftime('%Y%m')}",

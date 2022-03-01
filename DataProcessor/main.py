@@ -1,13 +1,18 @@
 # %%
+from distutils.command.upload import upload
 from os import system
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from json import dumps
+from random import shuffle
 from pandas import DataFrame, concat
 from datetime import datetime
 from google.cloud import storage #, bigquery
 
 from cooker import *
+from reporting import *
+
+TESTTEST = 0
 
 ####################################################################################
 #   ___           _ _       _     _             _   __  __           _       _      
@@ -33,8 +38,12 @@ TAG_Ym, TAG_Ymd = datetime.now().strftime("%Y%m/"), datetime.now().strftime("%Y%
 
 ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f"{RUN_MODE}/{TAG_FULL}")]
 ALL_FILES = [x for x in ALL_FILES if x.endswith(".pp")]
-# from random import choices
-# ALL_FILES = choices(ALL_FILES, k=100) 
+shuffle(ALL_FILES)
+
+if TESTTEST > 0:
+    from random import choices
+    ALL_FILES = choices(ALL_FILES, k=TESTTEST) 
+
 
 
 def save_big_str(one_str):
@@ -50,9 +59,6 @@ def save_big_str(one_str):
 
     return True
 
-
-# %%
-# exceptions are forwarded (excl. sold out) 
 def save_exception_str(name, sstr):
     (GS_OUTPUTS
         .blob(f'yCrawl_Exceptions/{TAG_SHORT}_{name}')
@@ -60,6 +66,8 @@ def save_exception_str(name, sstr):
     )
 
 def check_already_run():
+    if TESTTEST > 0:
+        return False
     return len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_SHORT}")]) >= 3
 
 
@@ -79,6 +87,12 @@ def main():
             if "_ERR" in one_filename:
                 list_errs += cook_error(one_soup)
                 continue
+        except Exception as e:
+            files_exception.append({
+                "filename": one_filename, 
+                "errm": str(e)
+            })
+        try:
             vendor = one_soup.qurl.string.split(".")[1]
             if vendor == "qatarairways":
                 list_flights += cook_qatar(one_soup)
@@ -92,18 +106,15 @@ def main():
                 list_hotels += cook_fourseasons(one_soup)
             else:
                 raise Exception(f"\nVendor not found {vendor}")
-
         except Exception as e:
-            files_exception.append({"filename": one_filename, "exception": str(e)})
+            files_exception.append({
+                "filename": one_filename, 
+                "vmid": one_soup.vmid.string,
+                "uurl": ".".join(one_soup.qurl.string.split(".")[1:]),
+                "errm": str(e)
+            })
 
     save_big_str("END")
-
-    # summarize exceptions
-    exception_summary = [{
-        "exception": x,
-        "filenames": [y['filename'] for y in files_exception if y['exception'] == x]
-    } for x in set([x['exception'] for x in files_exception])]
-    save_exception_str(name="Exceptions.json", sstr=dumps(exception_summary, indent=4))
 
 
     # %% check hotels list-style element validity
@@ -126,21 +137,27 @@ def main():
     df_flights = DataFrame(list_flights)
     df_errs = DataFrame(list_errs)
 
-    # %% file movement 
+
+    # %% cleaning and upload, pre-process are saved as file
     df_flights.to_parquet(f"{TAG_Ymd}_flights.parquet.gzip", compression='gzip')
     df_hotels.to_parquet(f"{TAG_Ymd}_hotels.parquet.gzip", compression='gzip')
-    df_errs.to_parquet(f"{TAG_Ymd}_errs.parquet.gzip", compression='gzip')
-
     system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_Ym}/")
+    
+    ecb = get_ecb_rate()
+    finalize_df_errs(df_errs, files_exception, upload=True)
+    df_flights = finalize_df_flights(df_flights, ecb, upload=True)
+    df_hotels = finalize_df_hotels(df_hotels, ecb, upload=True)
+
+    # send line message for summary, AUTHKEY system registered
+    prepare_flex_msg(df_flights, df_hotels, sendline=True)
 
     # move erroreouns files
-    errfiles = [f"gs://{str(GS_STAGING.name)}/{x}" for x in [y['filename'] for y in files_exception if "sold out" not in y["exception"]]]
+    errfiles = [f"gs://{str(GS_STAGING.name)}/{x}" for x in [y['filename'] for y in files_exception if "sold out" not in y["errm"]]]
     if len(errfiles):
         with open("tmplist", "w") as f:
             f.write("\n".join(errfiles))
         system(f"cat tmplist | gsutil -m cp -I gs://{str(GS_OUTPUTS.name)}/yCrawl_Review/{TAG_FULL}/")
 
-    # source files are lifecycle controller, no need to delete
 
 if __name__ == "__main__":
     main()

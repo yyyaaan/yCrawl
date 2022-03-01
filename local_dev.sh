@@ -4,7 +4,7 @@ source activate base
 
 # gcloud app deploy --version prod1-h
 
-sudo apt install python3-pip python-is-python3 python3-certbot-nginx
+sudo apt install python3-pip python-is-python3
 git clone https://github.com/yyyaaan/yCrawl
 
 
@@ -51,6 +51,9 @@ sudo chmod 664 /etc/systemd/system/ycrawl-head.service
 sudo systemctl daemon-reload
 sudo systemctl enable ycrawl-head.service
 
-
+sudo apt install python3-certbot-nginx
 sudo certbot --nginx -d domain
 
+# cron job to update, restart daily - ensure date tag is correct, check `date` to ensure timezone
+nano /ect/crontab
+15 0    1 * *   root    sudo systemctl stop ycrawl-head && cd /home/yan/yCrawl && git pull && sudo systemctl start ycrawl-head

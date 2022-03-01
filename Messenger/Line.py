@@ -1,6 +1,6 @@
 from os import popen
 from linebot import LineBotApi
-from linebot.models import TextSendMessage
+from linebot.models import TextSendMessage, FlexSendMessage
 from Frontend.functions import get_secret
 from json import loads
 
@@ -14,10 +14,13 @@ def get_client(target="Cloud"):
     else:
         return LineBotApi(KEYS["LINE-MSG"])
 
-def send_line(target="cloud", text="Hello"):
+def send_line(target="cloud", text="Hello", flex=None):
     # LINE_API.push_message('<to>', TextSendMessage(text='Hello World!'))
     try:
-        get_client().broadcast(TextSendMessage(text=text))
+        if flex == None:
+            get_client().broadcast(TextSendMessage(text=text))
+        else:
+            get_client().broadcast(FlexSendMessage(alt_text=text,contents=flex))
     except Exception as e:
         print(str(e))
 

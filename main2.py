@@ -28,8 +28,18 @@ def rundata():
         return render_template("welcome.html", header1="Data Processor Endpoint", text1=data_process_monitor())
 
 
+@app.route("/sendline", methods=["POST"])
+def sendline():
+    if not verify_cloud_auth(request.json): 
+        return RES403
+    try:
+        send_line(target=request.json["TO"], text=request.json["TEXT"], flex=request.json["FLEX"])
+    except Exception as e:
+        print(f"fail to send line due to {str(e)}")
+    
 
-@app.route('/simplelogging', methods=['POST', 'GET'])
+
+@app.route("/simplelogging", methods=['POST', 'GET'])
 def simplelogging():
     # curl -i -H "Content-Type: application/json" -X POST -d '{"VMID":"y-crawl-x", "log": "new log service"}' http://127.0.0.1:8080/simplelogging
     if request.method == 'POST':
