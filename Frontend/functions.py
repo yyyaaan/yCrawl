@@ -1,3 +1,4 @@
+from sqlalchemy import DATE
 from config import *
 from Frontend.monitor import storage_file_viewer
 from json import dumps
@@ -36,8 +37,11 @@ def done_for_today(run_mode=RUN_MODE):
 
 
 def determine_all_completed(caller, servers_required):
+    global DATE_STR #ensure refresh on new day
+    DATE_STR = date.today().strftime("%Y%m%d")
+
     log_client = logging.Client()
-    the_filter = f'logName="projects/yyyaaannn/logs/stdout" AND timestamp>="{TODAY_0}"'
+    the_filter = f'logName="projects/yyyaaannn/logs/stdout" AND timestamp>=f"{DATE_STR}T00:00:00.123456z"'
     log_text = [x.payload for x in log_client.list_entries(filter_=the_filter, order_by=logging.DESCENDING)]
 
     servers_completed = [x.split(" ")[-1] for x in log_text if x.startswith("Completion noted")]

@@ -1,25 +1,20 @@
 # %%
-from distutils.command.upload import upload
 from os import system
+from sys import argv
 from bs4 import BeautifulSoup
-from tqdm import tqdm
 from json import dumps
 from random import shuffle
 from pandas import DataFrame, concat
 from datetime import datetime
-from google.cloud import storage #, bigquery
+from google.cloud import storage
 
 from cooker import *
 from reporting import *
 
-TESTTEST = 0
+TESTTEST = int(argv[2]) if len(argv) > 2 and argv[1] == "test" else 0
+
 
 ####################################################################################
-#   ___           _ _       _     _             _   __  __           _       _      
-#  |_ _|_ __   __| (_)_   _(_) __| |_   _  __ _| | |  \/  | ___   __| |_   _| | ___ 
-#   | || '_ \ / _` | \ \ / / |/ _` | | | |/ _` | | | |\/| |/ _ \ / _` | | | | |/ _ \
-#   | || | | | (_| | |\ V /| | (_| | |_| | (_| | | | |  | | (_) | (_| | |_| | |  __/
-#  |___|_| |_|\__,_|_| \_/ |_|\__,_|\__,_|\__,_|_| |_|  |_|\___/ \__,_|\__,_|_|\___|
 ### TO BE USED in current directory, not called from elsewhere #####################
 ################################################### METADATA is NOT fetched live ###
 
@@ -30,21 +25,20 @@ GS_OUTPUTS = GS_CLIENT.get_bucket("yyyaaannn-us")
 GS_ARCHIVE = GS_CLIENT.get_bucket("ycrawl-data")
 # GS_ARCHIVE = GS_CLIENT.get_bucket("ycrawl-cool")
 
-BIG_THRESHOLD, BIG_N, PART_N, BIG_STR = 200, 0, 1, ""
+TAG_Ym, TAG_Ymd, TAG_d = datetime.now().strftime("%Y%m/"), datetime.now().strftime("%Y%m%d"), datetime.now().strftime("%d")
 
-TAG_SHORT = datetime.now().strftime("%Y%m/%Y%m%d") # when naming object with prefix
-TAG_FULL = datetime.now().strftime("%Y%m/%d") # when using full path
-TAG_Ym, TAG_Ymd = datetime.now().strftime("%Y%m/"), datetime.now().strftime("%Y%m%d")
-
-ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f"{RUN_MODE}/{TAG_FULL}")]
+ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f"{RUN_MODE}/{TAG_Ym}{TAG_d}")]
 ALL_FILES = [x for x in ALL_FILES if x.endswith(".pp")]
 shuffle(ALL_FILES)
 
 if TESTTEST > 0:
+    # debug mode show progres bar
     from random import choices
-    ALL_FILES = choices(ALL_FILES, k=TESTTEST) 
+    from tqdm import tqdm
+    ALL_FILES = tqdm(choices(ALL_FILES, k=TESTTEST))
 
 
+BIG_THRESHOLD, BIG_N, PART_N, BIG_STR = 200, 0, 1, ""
 
 def save_big_str(one_str):
     global BIG_THRESHOLD, BIG_N, BIG_STR, PART_N, SEP_STR
@@ -52,7 +46,7 @@ def save_big_str(one_str):
     BIG_N +=1
 
     if one_str=="END" or BIG_N > BIG_THRESHOLD:
-        blob = GS_ARCHIVE.blob(f'BIGSTR/{TAG_SHORT}_BIG{PART_N:02}.txt')
+        blob = GS_ARCHIVE.blob(f'BIGSTR/{TAG_Ym}{TAG_Ymd}_BIG{PART_N:02}.txt')
         blob.upload_from_string(BIG_STR)
         BIG_N, BIG_STR = 0, ""
         PART_N +=1
@@ -61,14 +55,14 @@ def save_big_str(one_str):
 
 def save_exception_str(name, sstr):
     (GS_OUTPUTS
-        .blob(f'yCrawl_Exceptions/{TAG_SHORT}_{name}')
+        .blob(f'yCrawl_Exceptions/{TAG_Ym}{TAG_Ymd}_{name}')
         .upload_from_string(sstr)
     )
 
-def check_already_run():
-    if TESTTEST > 0:
+def check_already_run(flag=TESTTEST):
+    if flag > 0:
         return False
-    return len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_SHORT}")]) >= 3
+    return len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_Ym}{TAG_Ymd}")]) >= 3
 
 
 # %%
@@ -79,7 +73,7 @@ def main():
         return()
 
     list_errs, list_flights, list_hotels, files_exception = [],[],[], []
-    for one_filename in tqdm(ALL_FILES):
+    for one_filename in ALL_FILES:
         try:
             one_str = GS_STAGING.get_blob(one_filename).download_as_string()
             save_big_str(str(one_str))
@@ -156,7 +150,7 @@ def main():
     if len(errfiles):
         with open("tmplist", "w") as f:
             f.write("\n".join(errfiles))
-        system(f"cat tmplist | gsutil -m cp -I gs://{str(GS_OUTPUTS.name)}/yCrawl_Review/{TAG_FULL}/")
+        system(f"cat tmplist | gsutil -m cp -I gs://{str(GS_OUTPUTS.name)}/yCrawl_Review/{TAG_Ym}{TAG_d}/")
 
 
 if __name__ == "__main__":

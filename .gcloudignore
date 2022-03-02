@@ -32,3 +32,4 @@ main2.py
 wsgi.py
 test.py
 reqlocal.txt
+log.log

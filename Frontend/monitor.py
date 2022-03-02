@@ -58,14 +58,17 @@ def storage_file_viewer(run_mode=RUN_MODE):
 
 
 def get_simple_log():
+    global DATE_STR #ensure refresh on new day
+    DATE_STR = date.today().strftime("%Y%m%d")
+
     log_client = logging.Client()
 
-    the_filter = f'logName="projects/yyyaaannn/logs/stdout" AND timestamp>="{TODAY_0}"'
+    the_filter = f'logName="projects/yyyaaannn/logs/stdout" AND timestamp>=f"{DATE_STR}T00:00:00.123456z"'
     log_entries = log_client.list_entries(filter_=the_filter, order_by=logging.DESCENDING)
     logs_stdout = [f'{x.timestamp.strftime("%H:%M:%S")} {x.payload}' for x in log_entries]
 
     ### logs orginized by server
-    the_filter = f'logName="projects/yyyaaannn/logs/y_simple_log" AND timestamp>="{TODAY_0}"'
+    the_filter = f'logName="projects/yyyaaannn/logs/y_simple_log" AND timestamp>=f"{DATE_STR}T00:00:00.123456z"'
     log_entries = log_client.list_entries(filter_=the_filter, order_by=logging.DESCENDING)
     log_simplified = [f'{x.timestamp.strftime("%H:%M:%S")}{x.payload}' for x in log_entries if not str(x.payload).startswith("test")]
 

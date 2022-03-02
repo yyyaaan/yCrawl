@@ -22,6 +22,9 @@ def checkin():
     if not request.headers.get('X-Appengine-Cron'):
         return RES403
 
+    global DATE_STR #ensure refresh on new day
+    DATE_STR = date.today().strftime("%Y%m%d")
+
     if done_for_today():
         print("Check-in: completion noted from file object")
         return "Success", 200
@@ -73,7 +76,7 @@ def notifydone():
     if not verify_cloud_auth(request.json): 
         return RES403
 
-    if (get_secret("ycrawl-keep-alive") == TODAY_0):
+    if (get_secret("ycrawl-keep-alive") == f"{DATE_STR}T00:00:00.123456z"):
         print("Completion noted and keep alive")
         return "Success", 200
 

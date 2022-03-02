@@ -21,11 +21,14 @@ def rundata():
 
         data_dir = str(getcwd()) + "/DataProcessor"
         send_line(text="Recieved pipeline initiation, pulling cloud storage data")
-        Popen(["python3", "main.py"], cwd= data_dir, stdin=None, stdout=None, stderr=None)
+
+        with open("log.log", "ab") as logfile:
+            Popen(["python3", "main.py"], cwd= data_dir, stdin=None, stdout=logfile, stderr=logfile)
         return "Success", 200
     
     else:
-        return render_template("welcome.html", header1="Data Processor Endpoint", text1=data_process_monitor())
+        return render_template("welcome.html", header1=f"Data Processor Endpoint", text1=data_process_monitor())
+
 
 
 @app.route("/sendline", methods=["POST"])
@@ -65,7 +68,7 @@ def simplelogging():
 # NOT served from Appengine, only from VM/local
 @app.route("/xyz")
 def xyz():
-    return render_template("welcome.html", header1="Extended-Service", text1="extended functions are available")
+    return render_template("welcome.html", header1="Extended-Service", text1="Activated local extended service mode")
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=7999, debug=True)

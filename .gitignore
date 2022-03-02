@@ -2,6 +2,7 @@ Worker/cache/
 DataProcessor/cache/
 test.py
 .DS_Store
+log.log
 # includes both Node and Python template
 
 # Byte-compiled / optimized / DLL files

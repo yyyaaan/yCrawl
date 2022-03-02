@@ -150,19 +150,19 @@ def prepare_flex_msg(dff, dfh, sendline=True):
         })
 
     flex_json = {"type": "carousel", "contents": bubbles}
+    print(flex_json)
     if sendline:
         try:
-            post(LINEMSG_ENDPOINT, json = {
+            res = post(LINEMSG_ENDPOINT, json = {
                 "AUTH": getenv("AUTHKEY"), 
                 "TO": "cloud",
                 "TEXT": "Summary for yCrawl Outputs",
                 "FLEX": flex_json
             })
+            print("Line messaging request:")
+            print(res)
         except Exception as e:
             print(f"failed to post line message due to {str(e)}")
-
-        return True
-
 
     return flex_json
 

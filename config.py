@@ -14,7 +14,6 @@ BATCH_REF = dict([(x['name'], x['batch']) for x in META['cluster']])
 
 # control_id is either 1, 2, 3 or 0 defines a quarter of all tasks
 DATE_STR = date.today().strftime("%Y%m%d")
-TODAY_0 = date.today().strftime("%Y-%m-%d") + "T00:00:00.123456z"
 CONTROL_ID = ((date.today() - date(1970,1,1)).days) % 4
 
 # mainly for coordinator
