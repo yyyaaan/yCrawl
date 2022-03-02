@@ -22,10 +22,10 @@ RUN_MODE = "prod1"
 GS_CLIENT = storage.Client(project="yyyaaannn")
 GS_STAGING = GS_CLIENT.get_bucket("staging.yyyaaannn.appspot.com")
 GS_OUTPUTS = GS_CLIENT.get_bucket("yyyaaannn-us")
-GS_ARCHIVE = GS_CLIENT.get_bucket("ycrawl-data")
-# GS_ARCHIVE = GS_CLIENT.get_bucket("ycrawl-cool")
+GS_ARCHIVE = GS_CLIENT.get_bucket("ycrawl-cool")
 
 TAG_Ym, TAG_Ymd, TAG_d = datetime.now().strftime("%Y%m/"), datetime.now().strftime("%Y%m%d"), datetime.now().strftime("%d")
+print(f"\n========= START {TAG_Ymd} =========")
 
 ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f"{RUN_MODE}/{TAG_Ym}{TAG_d}")]
 ALL_FILES = [x for x in ALL_FILES if x.endswith(".pp")]

@@ -5,7 +5,7 @@ from Coordinator.main import fetch_all_urls
 
 
 
-def data_process_monitor(bucket_name="ycrawl-data"):
+def data_process_monitor(bucket_name="ycrawl-cool"):
         bucket = storage.Client().get_bucket(bucket_name)
         info = [f"{x.name[-9:-4]} @ {datetime.fromtimestamp(x.generation/(10**6)).time()}" 
                 for x in bucket.list_blobs(prefix=f'BIGSTR/{datetime.now().strftime("%Y%m/%Y%m%d")}')]

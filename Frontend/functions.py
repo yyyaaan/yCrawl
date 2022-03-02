@@ -75,6 +75,6 @@ def verify_cloud_auth(payload, keyname="ycrawl-simple-auth"):
     secretkey = response.payload.data.decode("UTF-8")
     flag = secretkey.strip() == payload["AUTH"].strip()
     if not flag: 
-        print("AUTH: access denied due - wrong key")
+        print("AUTH: access denied - wrong key")
     return flag
 
