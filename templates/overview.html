@@ -39,8 +39,9 @@
     <h3>{{n_jobs}}</h3>
     <p>{% autoescape false %}{{jobs_detail}}{% endautoescape %}</p>
     
-    <p><a href="/rundata"> <i class="material-icons">assessment</i> </a>  
-       <a href="{{gso_link}}" target="_blank"><i class="material-icons">library_books</i></a>
+    <p><a href="/rundata"> <i class="small material-icons">assessment</i> </a>  
+       <a href="{{gso_link}}" target="_blank"><i class="small material-icons">folder_open</i></a>  
+       <a href="https://datastudio.google.com/reporting/d69d4892-6779-4d66-8b38-2fee9fd00dc1/page/kE3mC" target="_blank"><i class="small material-icons">dashboard</i> </a>
     </p>
 </div>
 {% endblock %}
@@ -52,8 +53,8 @@
     <div class="bar bar5"></div><div class="bar bar6"></div><div class="bar bar7"></div><div class="bar bar8"></div>
 </div>
 <div class="col s12">
-    <button id="log-btn" class="middle waves-effect waves-light btn" onclick="showLog()" style="display:none">Show Log Center</button>
-    <iframe id="delayed-log" width="100%" height="800" style="border:none;"></iframe>
+    <button id="log-btn" class="middle waves-effect waves-light btn" onclick="showLog()" style="display:none">Load Logs</button>
+    <iframe id="delayed-log" width="100%" height="900" style="border:none;"></iframe>
     <p><small>{{ job_str }}</small></p>
 </div>
 {% endblock %}
@@ -65,7 +66,7 @@
         document.getElementById('delayed-vm').setAttribute('src', '/sub-vmstatus');
         document.getElementById('loading').style.display = 'none';
         document.getElementById('log-btn').style.display = "block";
-    }, 6000);    
+    }, 5000);    
     function showLog() {
         document.getElementById('log-btn').style.display = "none";
         document.getElementById('delayed-log').setAttribute('src', '/sub-logviewer');

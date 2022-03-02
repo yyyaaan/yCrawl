@@ -4,7 +4,7 @@ source activate base
 
 # gcloud app deploy --version prod1-h
 
-sudo apt install python3-pip python-is-python3
+sudo apt install python3-pip python-is-python3 
 git clone https://github.com/yyyaaan/yCrawl
 
 

@@ -15,7 +15,7 @@
         </div>
         <div class="card-content grey lighten-4">
             {% for one_log in logs_by_vm %}
-            <div id="{{one_log.name}}"><pre style="max-height: 500px; overflow: auto;">{% autoescape false %}{{one_log.logs}}{% endautoescape %}</pre></div>
+            <div id="{{one_log.name}}"><pre style="max-height: 600px; overflow: auto;">{% autoescape false %}{{one_log.logs}}{% endautoescape %}</pre></div>
             {% endfor %}
         </div>
     </div>

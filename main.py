@@ -76,7 +76,7 @@ def notifydone():
     if not verify_cloud_auth(request.json): 
         return RES403
 
-    if (get_secret("ycrawl-keep-alive") == f"{DATE_STR}T00:00:00.123456z"):
+    if (get_secret("ycrawl-keep-alive") == DATE_STR):
         print("Completion noted and keep alive")
         return "Success", 200
 
