@@ -157,5 +157,6 @@ def cook_error(soup):
     return [{
         "vmid": soup.vmid.string,
         "uurl": ".".join(soup.qurl.string.split(".")[1:]),
-        "errm": parse_texts(soup.timestamp.next_elements)[-1]
+        "errm": parse_texts(soup.timestamp.next_elements)[-1],
+        "ts": soup.timestamp.string
     }]

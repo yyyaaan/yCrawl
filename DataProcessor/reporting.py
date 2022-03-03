@@ -39,7 +39,7 @@ def finalize_df_errs(df_errs, files_exception, upload=True):
 
     if upload:
         upload_to_bq(concat([df_errs, df_ex]), "issues")
-    return True
+    return concat([df_errs, df_ex])
 
 
 # %% Exchange rate
@@ -57,6 +57,7 @@ def get_ecb_rate():
         exchange_rate = DataFrame(ecb_list)
         upload_to_bq(exchange_rate, "ECBrate", write_disposition="WRITE_TRUNCATE")
     except:
+        print("ECB exchange rate NOT upated, using previous saved rates")
         exchange_rate = BQ_CLIENT.query("select * from yyyaaannn.yCrawl.ECBrate").result().to_dataframe()
     return exchange_rate
 
@@ -159,7 +160,6 @@ def prepare_flex_msg(dff, dfh, sendline=True):
                 "TEXT": "Summary for yCrawl Outputs",
                 "FLEX": flex_json
             })
-            print("Line messaging request:")
             print(res)
         except Exception as e:
             print(f"failed to post line message due to {str(e)}")

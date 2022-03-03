@@ -12,6 +12,7 @@ from cooker import *
 from reporting import *
 
 TESTTEST = int(argv[2]) if len(argv) > 2 and argv[1] == "test" else 0
+UPLOAD = True
 
 
 ####################################################################################
@@ -35,7 +36,8 @@ if TESTTEST > 0:
     # debug mode show progres bar
     from random import choices
     from tqdm import tqdm
-    ALL_FILES = tqdm(choices(ALL_FILES, k=TESTTEST))
+    if TESTTEST < len(ALL_FILES):
+        ALL_FILES = tqdm(choices(ALL_FILES, k=TESTTEST))
 
 
 BIG_THRESHOLD, BIG_N, PART_N, BIG_STR = 200, 0, 1, ""
@@ -84,7 +86,8 @@ def main():
         except Exception as e:
             files_exception.append({
                 "filename": one_filename, 
-                "errm": str(e)
+                "errm": str(e),
+                "ts": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
             })
         try:
             vendor = one_soup.qurl.string.split(".")[1]
@@ -105,7 +108,8 @@ def main():
                 "filename": one_filename, 
                 "vmid": one_soup.vmid.string,
                 "uurl": ".".join(one_soup.qurl.string.split(".")[1:]),
-                "errm": str(e)
+                "errm": str(e),
+                "ts": one_soup.timestamp.string
             })
 
     save_big_str("END")
@@ -135,22 +139,28 @@ def main():
     # %% cleaning and upload, pre-process are saved as file
     df_flights.to_parquet(f"{TAG_Ymd}_flights.parquet.gzip", compression='gzip')
     df_hotels.to_parquet(f"{TAG_Ymd}_hotels.parquet.gzip", compression='gzip')
-    system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_Ym}/")
+    if UPLOAD:
+        system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_Ym}/")
     
     ecb = get_ecb_rate()
-    finalize_df_errs(df_errs, files_exception, upload=True)
-    df_flights = finalize_df_flights(df_flights, ecb, upload=True)
-    df_hotels = finalize_df_hotels(df_hotels, ecb, upload=True)
+    df_errs = finalize_df_errs(df_errs, files_exception, upload=UPLOAD)
+    df_flights = finalize_df_flights(df_flights, ecb, upload=UPLOAD)
+    df_hotels = finalize_df_hotels(df_hotels, ecb, upload=UPLOAD)
 
     # send line message for summary, AUTHKEY system registered
-    prepare_flex_msg(df_flights, df_hotels, sendline=True)
+    if UPLOAD:
+        prepare_flex_msg(df_flights, df_hotels, sendline=True)
 
-    # move erroreouns files
-    errfiles = [f"gs://{str(GS_STAGING.name)}/{x}" for x in [y['filename'] for y in files_exception if "sold out" not in y["errm"]]]
-    if len(errfiles):
-        with open("tmplist", "w") as f:
-            f.write("\n".join(errfiles))
-        system(f"cat tmplist | gsutil -m cp -I gs://{str(GS_OUTPUTS.name)}/yCrawl_Review/{TAG_Ym}{TAG_d}/")
+        # move erroreouns files
+        errfiles = [f"gs://{str(GS_STAGING.name)}/{x}" for x in [y['filename'] for y in files_exception if "sold out" not in y["errm"]]]
+        if len(errfiles):
+            with open("tmplist", "w") as f:
+                f.write("\n".join(errfiles))
+            system(f"cat tmplist | gsutil -m cp -I gs://{str(GS_OUTPUTS.name)}/yCrawl_Review/{TAG_Ym}{TAG_d}/")
+
+        return True
+    else:
+        return df_errs, df_flights, df_hotels
 
 
 if __name__ == "__main__":
