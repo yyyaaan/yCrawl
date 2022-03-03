@@ -2,28 +2,32 @@
 from os import system
 from sys import argv
 from bs4 import BeautifulSoup
-from json import dumps
+from json import dumps, loads
 from random import shuffle
 from pandas import DataFrame, concat
+from requests import get, post
 from datetime import datetime
 from google.cloud import storage
 
 from cooker import *
 from reporting import *
 
+# debug settings only
 TESTTEST = int(argv[2]) if len(argv) > 2 and argv[1] == "test" else 0
-UPLOAD = True
+UPLOAD = True if TESTTEST == 0 else False
 
 
 ####################################################################################
 ### TO BE USED in current directory, not called from elsewhere #####################
 ################################################### METADATA is NOT fetched live ###
+META = loads(get("https://raw.githubusercontent.com/yyyaaan/metadata/main/ycrawl.json").text)
 
-RUN_MODE = "prod1"
+
+RUN_MODE = META["scope"]
 GS_CLIENT = storage.Client(project="yyyaaannn")
-GS_STAGING = GS_CLIENT.get_bucket("staging.yyyaaannn.appspot.com")
-GS_OUTPUTS = GS_CLIENT.get_bucket("yyyaaannn-us")
-GS_ARCHIVE = GS_CLIENT.get_bucket("ycrawl-cool")
+GS_STAGING = GS_CLIENT.get_bucket(META["bucket"])
+GS_OUTPUTS = GS_CLIENT.get_bucket(META["bucket-outputs"])
+GS_ARCHIVE = GS_CLIENT.get_bucket(META["bucket-archive"])
 
 TAG_Ym, TAG_Ymd, TAG_d = datetime.now().strftime("%Y%m/"), datetime.now().strftime("%Y%m%d"), datetime.now().strftime("%d")
 print(f"\n========= START {TAG_Ymd} =========")
@@ -62,9 +66,8 @@ def save_exception_str(name, sstr):
     )
 
 def check_already_run(flag=TESTTEST):
-    if flag > 0:
-        return False
-    return len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_Ym}{TAG_Ymd}")]) >= 3
+    outbool = False if flag > 0 else (len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_Ym}{TAG_Ymd}")]) >= 3)
+    return outbool
 
 
 # %%
@@ -72,7 +75,7 @@ def main():
 
     if check_already_run():
         print("DataProcessor Step has been completed for today. No action for this request")
-        return()
+        return True
 
     list_errs, list_flights, list_hotels, files_exception = [],[],[], []
     for one_filename in ALL_FILES:
@@ -149,7 +152,7 @@ def main():
 
     # send line message for summary, AUTHKEY system registered
     if UPLOAD:
-        prepare_flex_msg(df_flights, df_hotels, sendline=True)
+        prepare_flex_msg(df_flights, df_hotels, msg_endpoint=META["MSG_ENDPOINT"])
 
         # move erroreouns files
         errfiles = [f"gs://{str(GS_STAGING.name)}/{x}" for x in [y['filename'] for y in files_exception if "sold out" not in y["errm"]]]
@@ -158,9 +161,10 @@ def main():
                 f.write("\n".join(errfiles))
             system(f"cat tmplist | gsutil -m cp -I gs://{str(GS_OUTPUTS.name)}/yCrawl_Review/{TAG_Ym}{TAG_d}/")
 
-        return True
-    else:
-        return df_errs, df_flights, df_hotels
+    # let people know I am done
+    post(META["DATA_ENDPOINT"], json = {"STOP": "done", "VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
+
+    return True
 
 
 if __name__ == "__main__":

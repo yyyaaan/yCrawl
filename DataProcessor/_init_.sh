@@ -1,13 +1,13 @@
 #!bin/bash
-# calling myself using code below
+# calling myself using code below, note for the user name
 # git clone https://github.com/yyyaaan/yCrawl
-# sudo sh ~/yCrawl/DataProcessor_init_.sh
+# sudo sh ~/yCrawl/DataProcessor/_init_.sh
 
-apt install -y python3-pip python-is-python3
 apt update && sudo apt -y upgrade
+apt install -y python3-pip python-is-python3
 
 # python packages on global level - this a micro service, no virtual env
-cd ~/yCrawl
+cd /home/yan/yCrawl
 sudo -H pip install -r reqlocal.txt
 
 # authkeys and id
@@ -15,11 +15,11 @@ VMID=$HOSTNAME && echo "VMID=$HOSTNAME" | sudo tee -a /etc/environment
 AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")  && echo "AUTHKEY=$AUTHKEY" | sudo tee -a /etc/environment
 
 
-# startup script
-sudo tee -a /usr/local/bin/ycrawl-dp.sh > /dev/null <<EOT
+# startup script - remove old if exists
+rm -f /usr/local/bin/ycrawl-dp.sh /etc/systemd/system/ycrawldp.service
+tee -a /usr/local/bin/ycrawl-dp.sh > /dev/null <<EOT
 #!/bin/bash
 
-echo "startup script" $(date) >> /home/yan/script.txt
 gcloud config set project yyyaaannn
 gcloud logging write y_simple_log "test Data Processor Starts" --severity="INFO"
 
@@ -30,7 +30,7 @@ sudo sh /home/yan/yCrawl/DataProcessor/_startup_.sh
 
 EOT
 
-sudo tee -a /etc/systemd/system/ycrawldp.service > /dev/null <<EOT
+tee -a /etc/systemd/system/ycrawldp.service > /dev/null <<EOT
 # /lib/systemd/system/cloud-final.service
 [Unit]
 Description=yCrawl Data Processor Auto Start
@@ -53,7 +53,12 @@ WantedBy=cloud-init.target
 
 EOT
 
-# nano /usr/local/bin/ycrawl-dp.sh #nano /etc/systemd/system/ycrawldp.service
+# verfiy files (printing) 
+echo "verfiy start up script and service contents below"
+cat /usr/local/bin/ycrawl-dp.sh 
+nano /etc/systemd/system/ycrawldp.service
+echo "verfiy start up script and service contents above"
+
 chmod 744 /usr/local/bin/ycrawl-dp.sh 
 chmod 664 /etc/systemd/system/ycrawldp.service 
 systemctl daemon-reload

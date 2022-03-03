@@ -5,9 +5,10 @@ from Frontend.functions import get_secret
 # other platform imports are listed in each section
 
 # search list to determine cloud
-GCP_VMLIST= dict([(x['name'], x['zone']) for x in META['cluster'] if x['provider'] == "GCP"])
-AZURE_VMLIST = dict([(x['name'], x['resource']) for x in META['cluster'] if x['provider'] == "Azure"])
-AWS_VMLIST = dict([(x['name'], x['resource']) for x in META['cluster'] if x['provider'] == "AWS"])
+all_vms = META["cluster"] + META["data-processor"]
+GCP_VMLIST= dict([(x['name'], x['zone']) for x in all_vms if x['provider'] == "GCP"])
+AZURE_VMLIST = dict([(x['name'], x['resource']) for x in all_vms if x['provider'] == "Azure"])
+AWS_VMLIST = dict([(x['name'], x['resource']) for x in all_vms if x['provider'] == "AWS"])
 SECRET = loads(get_secret("ycrawl-credentials"))
 
 

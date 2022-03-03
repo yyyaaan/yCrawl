@@ -140,7 +140,7 @@ def sub_logviewer():
 
 @app.route("/sub-vmstatus")
 def sub_vmstatus():
-    n_running, vm_list = vm_list_all()
+    _, vm_list = vm_list_all()
     return render_template("sub-vmstatus.html", vm_status_list=vm_list)
 
 

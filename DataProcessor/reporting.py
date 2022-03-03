@@ -11,7 +11,6 @@ from google.cloud import bigquery
 
 # %%
 BQ_CLIENT = bigquery.Client()
-LINEMSG_ENDPOINT = "https://app.yanpan.fi/sendline"
 
 # bigquery.enums.WriteDisposition.WRITE_TRUNCATE
 
@@ -99,7 +98,7 @@ def finalize_df_hotels(df_hotels, exchange_rate, upload=True):
 
 
 
-def prepare_flex_msg(dff, dfh, sendline=True):
+def prepare_flex_msg(dff, dfh, msg_endpoint=False):
     dff["ddate"] = to_datetime(dff.ddate)
     dff["weekstart"] = dff.ddate.dt.to_period('W').apply(lambda r: r.start_time)
     dff["title"] = "Flight-QR"
@@ -152,9 +151,9 @@ def prepare_flex_msg(dff, dfh, sendline=True):
 
     flex_json = {"type": "carousel", "contents": bubbles}
     print(flex_json)
-    if sendline:
+    if len(msg_endpoint)>10:
         try:
-            res = post(LINEMSG_ENDPOINT, json = {
+            res = post(msg_endpoint, json = {
                 "AUTH": getenv("AUTHKEY"), 
                 "TO": "cloud",
                 "TEXT": "Summary for yCrawl Outputs",

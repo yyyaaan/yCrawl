@@ -5,7 +5,6 @@ from requests import post
 from datetime import datetime
 from google.cloud import logging, storage, secretmanager
 
-DATA_ENDPOINT = META['DATA_ENDPOINT']
 GSM_CLIENT = secretmanager.SecretManagerServiceClient()
 GS_CLIENT_BUCKET = storage.Client().get_bucket(GSBUCKET)
 
@@ -22,7 +21,7 @@ def on_all_completed(run_mode=RUN_MODE):
     json_to_save['file-completed'] = list_to_save
     blob.upload_from_string(dumps(json_to_save, indent=4, default=str))
     try:
-        post(DATA_ENDPOINT, json = {"AUTH": get_secret("ycrawl-simple-auth")})
+        post(META['DATA_ENDPOINT'], json = {"AUTH": get_secret("ycrawl-simple-auth"), "VMID": META["data-processor-active"]})
     except Exception as e:
         print("On all completed encounted erro: " + str(e))
 
