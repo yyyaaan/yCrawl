@@ -150,7 +150,6 @@ def prepare_flex_msg(dff, dfh, msg_endpoint=False):
         })
 
     flex_json = {"type": "carousel", "contents": bubbles}
-    print(flex_json)
     if len(msg_endpoint)>10:
         try:
             res = post(msg_endpoint, json = {
@@ -159,9 +158,11 @@ def prepare_flex_msg(dff, dfh, msg_endpoint=False):
                 "TEXT": "Summary for yCrawl Outputs",
                 "FLEX": flex_json
             })
-            print(res)
+            print(f"{res.status_code} {res.text}")                
         except Exception as e:
+            print(flex_json)
             print(f"failed to post line message due to {str(e)}")
+
 
     return flex_json
 

@@ -1,4 +1,5 @@
 # %%
+from distutils.command.upload import upload
 from os import system
 from sys import argv
 from bs4 import BeautifulSoup
@@ -12,43 +13,39 @@ from google.cloud import storage
 from cooker import *
 from reporting import *
 
-# debug settings only
-TESTTEST = int(argv[2]) if len(argv) > 2 and argv[1] == "test" else 0
-UPLOAD = True if TESTTEST == 0 else False
-
 
 ####################################################################################
 ### TO BE USED in current directory, not called from elsewhere #####################
-################################################### METADATA is NOT fetched live ###
+########################################################## global vars in __main__ #
+
+
+TESTTEST = int(argv[2]) if len(argv) > 2 and argv[1] == "test" else 0
+UPLOAD = True if TESTTEST in [0, 9999] else False
+
 META = loads(get("https://raw.githubusercontent.com/yyyaaan/metadata/main/ycrawl.json").text)
-
-
 RUN_MODE = META["scope"]
 GS_CLIENT = storage.Client(project="yyyaaannn")
 GS_STAGING = GS_CLIENT.get_bucket(META["bucket"])
 GS_OUTPUTS = GS_CLIENT.get_bucket(META["bucket-outputs"])
 GS_ARCHIVE = GS_CLIENT.get_bucket(META["bucket-archive"])
-
 TAG_Ym, TAG_Ymd, TAG_d = datetime.now().strftime("%Y%m/"), datetime.now().strftime("%Y%m%d"), datetime.now().strftime("%d")
-print(f"\n========= START {TAG_Ymd} =========")
 
 ALL_FILES = [x.name for x in GS_STAGING.list_blobs(prefix=f"{RUN_MODE}/{TAG_Ym}{TAG_d}")]
 ALL_FILES = [x for x in ALL_FILES if x.endswith(".pp")]
 shuffle(ALL_FILES)
 
 if TESTTEST > 0:
-    # debug mode show progres bar
     from random import choices
-    from tqdm import tqdm
     if TESTTEST < len(ALL_FILES):
-        ALL_FILES = tqdm(choices(ALL_FILES, k=TESTTEST))
+        ALL_FILES = choices(ALL_FILES, k=TESTTEST)
 
 
+# %% periodically save pulled source to archive -> NOT multi-process safe
 BIG_THRESHOLD, BIG_N, PART_N, BIG_STR = 200, 0, 1, ""
 
 def save_big_str(one_str):
     global BIG_THRESHOLD, BIG_N, BIG_STR, PART_N, SEP_STR
-    BIG_STR += "<!--NEW FILE--->" + one_str
+    BIG_STR += "<!--NEW FILE--->" + str(one_str)
     BIG_N +=1
 
     if one_str=="END" or BIG_N > BIG_THRESHOLD:
@@ -59,29 +56,20 @@ def save_big_str(one_str):
 
     return True
 
-def save_exception_str(name, sstr):
-    (GS_OUTPUTS
-        .blob(f'yCrawl_Exceptions/{TAG_Ym}{TAG_Ymd}_{name}')
-        .upload_from_string(sstr)
-    )
 
-def check_already_run(flag=TESTTEST):
-    outbool = False if flag > 0 else (len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_Ym}{TAG_Ymd}")]) >= 3)
-    return outbool
+# %% multi-processing module  -> currently only use one
+def assemble_dataframe(file_list):
 
+    ## first, iterate all files
+    list_errs, list_flights, list_hotels, files_exception = [],[],[],[]
+    if TESTTEST > 0:
+        from tqdm import tqdm
+        file_list = tqdm(file_list)
 
-# %%
-def main():
-
-    if check_already_run():
-        print("DataProcessor Step has been completed for today. No action for this request")
-        return True
-
-    list_errs, list_flights, list_hotels, files_exception = [],[],[], []
-    for one_filename in ALL_FILES:
+    for one_filename in file_list:
         try:
             one_str = GS_STAGING.get_blob(one_filename).download_as_string()
-            save_big_str(str(one_str))
+            save_big_str(one_str)
             one_soup = BeautifulSoup(one_str, 'html.parser')
             if "_ERR" in one_filename:
                 list_errs += cook_error(one_soup)
@@ -92,6 +80,8 @@ def main():
                 "errm": str(e),
                 "ts": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
             })
+            continue
+
         try:
             vendor = one_soup.qurl.string.split(".")[1]
             if vendor == "qatarairways":
@@ -114,11 +104,9 @@ def main():
                 "errm": str(e),
                 "ts": one_soup.timestamp.string
             })
+ 
 
-    save_big_str("END")
-
-
-    # %% check hotels list-style element validity
+    # second, create dataframe according to data
     hotels_by_room, hotels_by_rate, hotels_failed = [], [], []
     for x in list_hotels:
         if len(x["room_type"]) == len(x["rate_sum"]) and len(x["rate_sum"]) == len(x["rate_avg"]):
@@ -128,31 +116,41 @@ def main():
         else:
             hotels_failed.append(x)
 
-    if len(hotels_failed):
-        save_exception_str(name="ParseIssues.json", sstr=dumps(hotels_failed, indent=4, default=str))
+    df_hotels_1 = DataFrame(hotels_by_rate).explode(["rate_type", "rate_sum", "rate_avg"]) if len(hotels_by_rate) else None
+    df_hotels_2 = DataFrame(hotels_by_room).explode(["room_type", "rate_sum", "rate_avg"]) if len(hotels_by_room) else None
 
-    df_hotels = concat([
-        DataFrame(hotels_by_rate).explode(["rate_type", "rate_sum", "rate_avg"]),
-        DataFrame(hotels_by_room).explode(["room_type", "rate_sum", "rate_avg"])
-    ])
+    df_hotels = concat([df_hotels_1, df_hotels_2])
     df_flights = DataFrame(list_flights)
     df_errs = DataFrame(list_errs)
 
+    return df_hotels, df_flights, df_errs, hotels_failed, files_exception
 
-    # %% cleaning and upload, pre-process are saved as file
-    df_flights.to_parquet(f"{TAG_Ymd}_flights.parquet.gzip", compression='gzip')
-    df_hotels.to_parquet(f"{TAG_Ymd}_hotels.parquet.gzip", compression='gzip')
-    if UPLOAD:
-        system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_Ym}/")
-    
+
+
+# %%
+def main():    
+    if TESTTEST == 0 or (len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_Ym}{TAG_Ymd}")]) > 1):
+        print("DataProcessor Step has been completed for today. No action for this request")
+        return True
+
+    df_hotels, df_flights, df_errs, hotels_failed, files_exception = assemble_dataframe(ALL_FILES)
+
     ecb = get_ecb_rate()
     df_errs = finalize_df_errs(df_errs, files_exception, upload=UPLOAD)
-    df_flights = finalize_df_flights(df_flights, ecb, upload=UPLOAD)
-    df_hotels = finalize_df_hotels(df_hotels, ecb, upload=UPLOAD)
+    df_flights_final = finalize_df_flights(df_flights, ecb, upload=UPLOAD)
+    df_hotels_final = finalize_df_hotels(df_hotels, ecb, upload=UPLOAD)
 
-    # send line message for summary, AUTHKEY system registered
     if UPLOAD:
-        prepare_flex_msg(df_flights, df_hotels, msg_endpoint=META["MSG_ENDPOINT"])
+        # raw results output
+        df_hotels.to_parquet(f"{TAG_Ymd}_hotels.parquet.gzip", compression='gzip')
+        df_flights.to_parquet(f"{TAG_Ymd}_flights.parquet.gzip", compression='gzip')
+        system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_Ym}/")
+
+        # send line message for summary, AUTHKEY system registered
+        prepare_flex_msg(df_flights_final, df_hotels_final, msg_endpoint=META["MSG_ENDPOINT"])
+
+        # copy of saved metadata
+        system(f"gsutil cp gs://staging.yyyaaannn.appspot.com/prod1/{TAG_Ym}{TAG_d}/0_meta_on_completion.json gs://yyyaaannn-us/yCrawl_Output/{TAG_Ym}{TAG_Ymd}_meta.json")
 
         # move erroreouns files
         errfiles = [f"gs://{str(GS_STAGING.name)}/{x}" for x in [y['filename'] for y in files_exception if "sold out" not in y["errm"]]]
@@ -160,13 +158,20 @@ def main():
             with open("tmplist", "w") as f:
                 f.write("\n".join(errfiles))
             system(f"cat tmplist | gsutil -m cp -I gs://{str(GS_OUTPUTS.name)}/yCrawl_Review/{TAG_Ym}{TAG_d}/")
-
-    # let people know I am done
-    post(META["DATA_ENDPOINT"], json = {"STOP": "done", "VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
+        if len(hotels_failed):
+            (GS_OUTPUTS
+                .blob(f"yCrawl_Review/{TAG_Ym}{TAG_d}/hotels_parse_issue.json")
+                .upload_from_string(dumps(hotels_failed, indent=4, default=str))
+            )
 
     return True
 
 
 if __name__ == "__main__":
+    print(f"\n========= START {datetime.now().strftime('%Y-%m-%dT%X')} =========")
     main()
+    print(f"\nDONE {datetime.now().strftime('%Y-%m-%dT%X')}")
+    res = post(META["DATA_ENDPOINT"], json = {"STOP": "done", "VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
+    print(f"shutdown notice {res.status_code} {res.text}\n")
+
 

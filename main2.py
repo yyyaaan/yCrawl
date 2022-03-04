@@ -29,7 +29,7 @@ def rundata():
             with open("log.log", "ab") as logfile:
                 Popen(["python3", "main.py"], cwd= data_dir, stdin=None, stdout=logfile, stderr=logfile)
             return "OK", 200
-        elif "STOP" in request.json:
+        elif "STOP" in request.json.keys():
             vm_shutdown(vmid)
         else:
             vm_startup(vmid)
@@ -41,13 +41,13 @@ def rundata():
 
 @app.route("/sendline", methods=["POST"])
 def sendline():
-    info = "AUTH OK" if verify_cloud_auth(request.json) else "AUTH error"
-    # if not verify_cloud_auth(request.json): 
-    #     return RES403
+    # info = "AUTH OK" if verify_cloud_auth(request.json) else "AUTH error"
+    if not verify_cloud_auth(request.json): 
+        return RES403
     try:
         flex_json = request.json["FLEX"] if "FLEX" in request.json else None
         send_line(target=request.json["TO"], text=request.json["TEXT"], flex=flex_json)
-        return f"Success {info}", 200
+        return f"Success", 200
     except Exception as e:
         print(f"fail to send line due to {str(e)}")
         return f"{str(e)}", 400

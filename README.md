@@ -13,7 +13,7 @@ __Coordinator__ is in charge of distributing tasks and monitoring completion sta
 
 __Worker__ is a virtual machine (or container) to actually do the job. To simplify process, a worker will only call `main.py` and subsequently calling node and python modules. Cloud interface is achieve directly in `gsutil` bash for better performance.
 
-__DataProcessor__ is the pipeline to perform ETL.
+__DataProcessor__ is the pipeline to perform ETL. Dedicated Spot instance with montioring agent installed.
 
 __Messenger__ is webhook service, only for VM/local version, not in GAE
 
@@ -68,7 +68,7 @@ No environment key required. Secret keys are managed by cloud secret management 
 
 - Cron job header-auth (only allowed by GAE Cron)
 - VM control password controlled
-- JSON Auth-key checked before accept notice
+- JSON Auth-key checked before accept notice - will move to bearer
 
 ## Deployment and other concepts
 

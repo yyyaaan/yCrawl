@@ -56,7 +56,7 @@ EOT
 # verfiy files (printing) 
 echo "verfiy start up script and service contents below"
 cat /usr/local/bin/ycrawl-dp.sh 
-nano /etc/systemd/system/ycrawldp.service
+cat /etc/systemd/system/ycrawldp.service
 echo "verfiy start up script and service contents above"
 
 chmod 744 /usr/local/bin/ycrawl-dp.sh 
