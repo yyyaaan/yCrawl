@@ -12,8 +12,6 @@ from google.cloud import bigquery
 # %%
 BQ_CLIENT = bigquery.Client()
 
-# bigquery.enums.WriteDisposition.WRITE_TRUNCATE
-
 def upload_to_bq(df, short_id, write_disposition="WRITE_APPEND"):
 
     schema = [bigquery.SchemaField(str(x), "INT64") for x in df.columns if str(x).startswith("eur")]
@@ -89,6 +87,7 @@ def finalize_df_hotels(df_hotels, exchange_rate, upload=True):
 
     df_hotels_out["eur"] = round((df_hotels_out["rate_avg"]/df_hotels_out["rate"]).astype(float))
     df_hotels_out["eur_sum"] = round((df_hotels_out["rate_sum"]/df_hotels_out["rate"]).astype(float))
+    df_hotels_out = df_hotels_out[df_hotels_out['eur'] > 10]
     df_hotels_out = df_hotels_out[["hotel", "room_type", "rate_type", "nights", "eur", "check_in", "check_out", "eur_sum", "ccy", "rate_avg", "rate_sum", "ts", "vmid"]]
 
     if upload:
@@ -119,8 +118,6 @@ def prepare_flex_msg(dff, dfh, msg_endpoint=False):
     # %%
     df_msg = concat([flights_short, hotels_short])
     df_msg['content'] = df_msg.weekstart.dt.strftime("%b-%d") + "  " + df_msg.best.astype(str)
-
-    # use standard python processing
     msg_list = [{"title": x[0], "content": x[1]} for x in df_msg[['title', 'content']].values]
 
     # %%

@@ -10,9 +10,9 @@ from requests import get, post
 from datetime import datetime
 from google.cloud import storage
 
+from drift import send_drift
 from cooker import *
 from reporting import *
-
 
 ####################################################################################
 ### TO BE USED in current directory, not called from elsewhere #####################
@@ -104,7 +104,8 @@ def assemble_dataframe(file_list):
                 "errm": str(e),
                 "ts": one_soup.timestamp.string
             })
- 
+
+    save_big_str("END") 
 
     # second, create dataframe according to data
     hotels_by_room, hotels_by_rate, hotels_failed = [], [], []
@@ -148,6 +149,8 @@ def main():
 
         # send line message for summary, AUTHKEY system registered
         prepare_flex_msg(df_flights_final, df_hotels_final, msg_endpoint=META["MSG_ENDPOINT"])
+        send_drift(df_flights_final, df_hotels_final, msg_endpoint=META["MSG_ENDPOINT"])
+
 
         # copy of saved metadata
         system(f"gsutil cp gs://staging.yyyaaannn.appspot.com/prod1/{TAG_Ym}{TAG_d}/0_meta_on_completion.json gs://yyyaaannn-us/yCrawl_Output/{TAG_Ym}{TAG_Ymd}_meta.json")

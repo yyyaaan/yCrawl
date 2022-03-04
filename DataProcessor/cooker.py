@@ -136,6 +136,7 @@ def cook_qatar(soup):
     r_ccy = re.compile("[A-Z]{3}")
             
     cities = [x.get_text(strip=True) for x in soup.select(".ms-city")]
+    cities = [x]
     trip_pair = [(x.get_text(strip=True), x['onclick'].split(",")[1:]) for x in soup.select("a.csBtn")]
 
     json_list = [{
@@ -143,7 +144,7 @@ def cook_qatar(soup):
         "price": float(r_num.findall(prices)[0]),
         "ddate": datetime.strptime(dates[0], "'%a %b %d %X %Z%z %Y'").date(),
         "rdate": datetime.strptime(dates[1], "'%a %b %d %X %Z%z %Y')").date(),
-        "route": f"{cities[0]} {cities[1]}|{cities[2]} {cities[3]}" if len(cities) == 4 else f"{cities[0]} {cities[1]}|{cities[1]} {cities[0]}",
+        "route": f"{cities[0]} {cities[1]}|{cities[2]} {cities[3]}" if len(cities) == 4 else f"{cities[0][:-2]} {cities[1]}|{cities[1]} {cities[0][:-2]}",
         "vmid": soup.vmid.string,
         "ts": soup.timestamp.string,
     } for (prices, dates) in trip_pair]
