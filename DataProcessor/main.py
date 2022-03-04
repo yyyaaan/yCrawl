@@ -143,14 +143,13 @@ def main():
 
     if UPLOAD:
         # raw results output
-        df_hotels.to_parquet(f"{TAG_Ymd}_hotels.parquet.gzip", compression='gzip')
         df_flights.to_parquet(f"{TAG_Ymd}_flights.parquet.gzip", compression='gzip')
+        df_hotels.to_parquet(f"{TAG_Ymd}_hotels.parquet.gzip", compression='gzip')
         system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_Ym}/")
 
         # send line message for summary, AUTHKEY system registered
         prepare_flex_msg(df_flights_final, df_hotels_final, msg_endpoint=META["MSG_ENDPOINT"])
         send_drift(df_flights_final, df_hotels_final, msg_endpoint=META["MSG_ENDPOINT"])
-
 
         # copy of saved metadata
         system(f"gsutil cp gs://staging.yyyaaannn.appspot.com/prod1/{TAG_Ym}{TAG_d}/0_meta_on_completion.json gs://yyyaaannn-us/yCrawl_Output/{TAG_Ym}{TAG_Ymd}_meta.json")

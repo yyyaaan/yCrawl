@@ -136,7 +136,6 @@ def cook_qatar(soup):
     r_ccy = re.compile("[A-Z]{3}")
             
     cities = [x.get_text(strip=True) for x in soup.select(".ms-city")]
-    cities = [x]
     trip_pair = [(x.get_text(strip=True), x['onclick'].split(",")[1:]) for x in soup.select("a.csBtn")]
 
     json_list = [{
