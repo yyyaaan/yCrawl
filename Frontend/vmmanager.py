@@ -235,6 +235,7 @@ def vm_list_all():
 
 
 def vm_startup(vmid):
+    status = False
     if vmid in GCP_VMLIST.keys():
         status = gcp_vm_startup(vmid=vmid, zone=GCP_VMLIST[vmid])
     if vmid in AZURE_VMLIST.keys():
@@ -245,6 +246,7 @@ def vm_startup(vmid):
     return status
 
 def vm_shutdown(vmid):
+    status = False
     if vmid in GCP_VMLIST.keys():
         status = gcp_vm_shutdown(vmid=vmid, zone=GCP_VMLIST[vmid])
     if vmid in AZURE_VMLIST.keys():

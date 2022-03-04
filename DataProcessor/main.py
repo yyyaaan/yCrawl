@@ -129,7 +129,7 @@ def assemble_dataframe(file_list):
 
 # %%
 def main():    
-    if TESTTEST == 0 or (len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_Ym}{TAG_Ymd}")]) > 1):
+    if TESTTEST == 0 and (len([x.name for x in GS_OUTPUTS.list_blobs(prefix=f"yCrawl_Output/{TAG_Ym}{TAG_Ymd}")]) > 1):
         print("DataProcessor Step has been completed for today. No action for this request")
         return True
 
