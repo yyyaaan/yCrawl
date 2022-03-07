@@ -1,5 +1,4 @@
 # %%
-from distutils.command.upload import upload
 from os import system
 from sys import argv
 from bs4 import BeautifulSoup
@@ -21,9 +20,11 @@ from reporting import *
 
 TESTTEST = int(argv[2]) if len(argv) > 2 and argv[1] == "test" else 0
 UPLOAD = True if TESTTEST in [0, 9999] else False
+print(UPLOAD)
 
 META = loads(get("https://raw.githubusercontent.com/yyyaaan/metadata/main/ycrawl.json").text)
 RUN_MODE = META["scope"]
+EX_RATES = META["special-exchange-rates"]
 GS_CLIENT = storage.Client(project="yyyaaannn")
 GS_STAGING = GS_CLIENT.get_bucket(META["bucket"])
 GS_OUTPUTS = GS_CLIENT.get_bucket(META["bucket-outputs"])
@@ -136,7 +137,7 @@ def main():
 
     df_hotels, df_flights, df_errs, hotels_failed, files_exception = assemble_dataframe(ALL_FILES)
 
-    ecb = get_ecb_rate()
+    ecb = get_ecb_rate(specialrates=EX_RATES)
     df_errs = finalize_df_errs(df_errs, files_exception, upload=UPLOAD)
     df_flights_final = finalize_df_flights(df_flights, ecb, upload=UPLOAD)
     df_hotels_final = finalize_df_hotels(df_hotels, ecb, upload=UPLOAD)
@@ -147,9 +148,8 @@ def main():
         df_hotels.to_parquet(f"{TAG_Ymd}_hotels.parquet.gzip", compression='gzip')
         system(f"gsutil mv *.gzip gs://{str(GS_OUTPUTS.name)}/yCrawl_Output/{TAG_Ym}/")
 
-        # send line message for summary, AUTHKEY system registered
-        prepare_flex_msg(df_flights_final, df_hotels_final, msg_endpoint=META["MSG_ENDPOINT"])
-        send_drift(df_flights_final, df_hotels_final, msg_endpoint=META["MSG_ENDPOINT"])
+        # send line message for summary, AUTHKEY system registered, send_drift is called later
+        send_summary(df_flights_final, df_hotels_final, msg_endpoint=META["MSG_ENDPOINT"])
 
         # copy of saved metadata
         system(f"gsutil cp gs://staging.yyyaaannn.appspot.com/prod1/{TAG_Ym}{TAG_d}/0_meta_on_completion.json gs://yyyaaannn-us/yCrawl_Output/{TAG_Ym}{TAG_Ymd}_meta.json")
@@ -165,6 +165,8 @@ def main():
                 .blob(f"yCrawl_Review/{TAG_Ym}{TAG_d}/hotels_parse_issue.json")
                 .upload_from_string(dumps(hotels_failed, indent=4, default=str))
             )
+
+        send_drift(df_flights_final, df_hotels_final, msg_endpoint=META["MSG_ENDPOINT"])
 
     return True
 

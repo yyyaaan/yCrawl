@@ -1,8 +1,8 @@
 # %%
-from google.cloud import bigquery
+from pandas import DataFrame, concat
 from datetime import datetime, timedelta
-from requests import post
-from os import getenv
+from google.cloud import bigquery
+from linehelper import *
 
 BQ_CLIENT = bigquery.Client()
 
@@ -30,7 +30,7 @@ def get_hotels_drift_by_day(df_hotels_final, days=1, threshold_price=10, thresho
     monitor["row_drift"] = 100*(monitor["nrows"] - monitor["n_rows"])/monitor["n_rows"]
 
     price_drifts = [
-        f"- {shorten(x[0])} {x[1]:.1f}% (EUR {x[2]:.0f})" 
+        f"{shorten(x[0])} {x[1]:.1f}% (EUR {x[2]:.0f})" 
         for x in monitor[["hotel", "eur_drift", "mineur"]].values
         if abs(x[1]) > threshold_price
     ]
@@ -67,7 +67,7 @@ def get_flights_drift_by_day(df_flights_final, days=1, threshold_price=10, thres
     monitor["row_drift"] = 100*(monitor["nrows"] - monitor["n_rows"])/monitor["n_rows"]
 
     price_drifts = [
-        f"- Flight from {x[0]} {x[1]:.1f}% (EUR {x[2]:.0f})"  
+        f"{x[0]} {x[1]:.1f}% (EUR {x[2]:.0f})"  
         for x in monitor[["departure", "eur_drift", "mineur"]].values
         if abs(x[1]) > threshold_price
     ]
@@ -83,27 +83,19 @@ def get_flights_drift_by_day(df_flights_final, days=1, threshold_price=10, thres
 
 # %%  
 def send_drift(df_flights_final, df_hotels_final, msg_endpoint):
-
     price1h, row1h = get_hotels_drift_by_day(df_hotels_final, 1)
     price4h, row4h = get_hotels_drift_by_day(df_hotels_final, 4)
     price1f, row1f = get_flights_drift_by_day(df_flights_final, 1)
     price4f, row4f = get_flights_drift_by_day(df_flights_final, 4)
 
-    price1, price4 = price1h + price1f, price4h + price4f
-    row1, row4 = row1h + row1f, row4h + row4f
-    price1 = ["Price drift from yesterday's data:"] + price1 if len(price1) else price1
-    price4 = ["Significant price change over same period:"] + price4 if len(price4) else price4
-    row14 = ["Data quantity drift"] + row4 + row1
-    outlist = price4 + price1 if len(row14)==1 else price4 + price1 + row14
-    msg_txt = "\n".join(outlist) if len(outlist) else "No significant price change or data drift detected"
+    msg_df = concat([
+        DataFrame({"title": "Hotel price change", "content": price4h}),
+        DataFrame({"title": "Flight price change", "content": price4f}),
+        DataFrame({"title": "Hotel vs yesterday", "content": price1h}),
+        DataFrame({"title": "Flight vs yesterday", "content": price1f}),
+        DataFrame({"title": "Data quantity drifts", "content": row4h + row4f + row1h + row1f}),
+    ])
 
-    if len(msg_endpoint)>10:
-        try:
-            res = post(msg_endpoint, json = {
-                "AUTH": getenv("AUTHKEY"), 
-                "TO": "cloud",
-                "TEXT": msg_txt,
-            })
-            print(f"{res.status_code} {res.text}")                
-        except Exception as e:
-            print(f"failed to post line message due to {str(e)}")
+    send_df_as_flex(df=msg_df, msg_endpoint=msg_endpoint, text="Data Drift Summary", color="#eeeeee")
+
+# %%

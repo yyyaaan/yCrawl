@@ -1,9 +1,9 @@
 # %%
-from os import getenv
 from bs4 import BeautifulSoup
 from pandas import DataFrame, concat, to_datetime
-from requests import get, post
+from requests import get
 from google.cloud import bigquery
+from linehelper import *
 
 ###################################
 ### EUR price are parsed as INTEGER
@@ -40,16 +40,13 @@ def finalize_df_errs(df_errs, files_exception, upload=True):
 
 
 # %% Exchange rate
-def get_ecb_rate():
+def get_ecb_rate(specialrates):
     try:
         ecb = get("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
         soup = BeautifulSoup(ecb.text, "html.parser")
         ecb_list = [x.attrs for x in soup.select("Cube")]
         ecb_list = [{"currency": str(x["currency"]), "rate": float(x["rate"])} for x in ecb_list if 'rate' in x.keys()]
-        ecb_list.append({"currency": "EUR", "rate": 1.0 })
-        ecb_list.append({"currency": "FJD", "rate": 2.38})
-        ecb_list.append({"currency": "XPF", "rate": 119.72})
-        ecb_list.append({"currency": "AED", "rate": 4.12})
+        [ecb_list.append(x) for x in specialrates]
         # no history is hold for ecb rate
         exchange_rate = DataFrame(ecb_list)
         upload_to_bq(exchange_rate, "ECBrate", write_disposition="WRITE_TRUNCATE")
@@ -96,8 +93,7 @@ def finalize_df_hotels(df_hotels, exchange_rate, upload=True):
 
 
 
-
-def prepare_flex_msg(dff, dfh, msg_endpoint=False):
+def send_summary(dff, dfh, msg_endpoint=False):
     dff["ddate"] = to_datetime(dff.ddate)
     dff["weekstart"] = dff.ddate.dt.to_period('W').apply(lambda r: r.start_time)
     dff["title"] = "Flight-QR"
@@ -115,51 +111,10 @@ def prepare_flex_msg(dff, dfh, msg_endpoint=False):
         .agg(best=("eur", min))
     )
 
-    # %%
     df_msg = concat([flights_short, hotels_short])
     df_msg['content'] = df_msg.weekstart.dt.strftime("%b-%d") + "  " + df_msg.best.astype(str)
-    msg_list = [{"title": x[0], "content": x[1]} for x in df_msg[['title', 'content']].values]
 
-    # %%
-    titles = set([x["title"] for x in msg_list])
-    bubbles = []
-    for t in titles:
-        bubbles.append({
-            "type": "bubble",
-            "size": "micro",
-            "body": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [{
-                        "type": "text",
-                        "text": str(t),
-                        "size": "xs",
-                        "color": "#aaaaaa",
-                        "wrap": True
-                    }] + [{
-                        "type": "text",
-                        "text": x["content"],
-                        "size": "xs",
-                        "color": "#aaaaaa",
-                        "wrap": True
-                    } for x in msg_list if x["title"]==t]
-            }
-        })
-
-    flex_json = {"type": "carousel", "contents": bubbles}
-    if len(msg_endpoint)>10:
-        try:
-            res = post(msg_endpoint, json = {
-                "AUTH": getenv("AUTHKEY"), 
-                "TO": "cloud",
-                "TEXT": "Summary for yCrawl Outputs",
-                "FLEX": flex_json
-            })
-            print(f"{res.status_code} {res.text}")                
-        except Exception as e:
-            print(flex_json)
-            print(f"failed to post line message due to {str(e)}")
-
+    flex_json = send_df_as_flex(df=df_msg, text="Summary for yCrawl Outputs", color="RANDOM", msg_endpoint=msg_endpoint)
 
     return flex_json
 

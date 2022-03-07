@@ -32,7 +32,7 @@ def checkin():
     all_servers = list(BATCH_REF.keys())
 
     # only start VM when itself has more tasks remaining
-    status, message, n_done = [True], "", 0
+    status, message, info, n_done = [True], "", "", 0
     for the_vm in all_servers:
         urls = call_coordinator(batch=BATCH_REF[the_vm], total_batches=len(BATCH_REF))
         the_n = len([x for x in urls.split("\n") if x != ""])
@@ -40,10 +40,14 @@ def checkin():
             message += f" {the_vm}/{the_n}"
             n_done +=1
         else: 
-            status.append(vm_startup(the_vm))
-
+            ss, ii = vm_startup(the_vm, keepinfo=True)
+            status.append(ss)
+            info += ii.replace("VM Manager:", "")
+            
     if len(message):
         print("VM Manager: no action" + message)
+    if len(info):
+        print("VM Manager: " + info)
 
     # all completed may not be catched by notify done due to async
     if n_done == len(all_servers) or determine_all_completed(caller=None, servers_required=all_servers):
@@ -76,7 +80,8 @@ def notifydone():
     if not verify_cloud_auth(request.json): 
         return RES403
 
-    if (get_secret("ycrawl-keep-alive") == DATE_STR):
+    # no auto-shutdown afterwards (detect as manual restart)
+    if done_for_today():
         print("Completion noted and keep alive")
         return "Success", 200
 

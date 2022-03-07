@@ -8,7 +8,7 @@ from google.cloud import logging, storage, secretmanager
 GSM_CLIENT = secretmanager.SecretManagerServiceClient()
 GS_CLIENT_BUCKET = storage.Client().get_bucket(GSBUCKET)
 
-def get_secret(keyname="ycrawl-keep-alive"):
+def get_secret(keyname):
     name = f"projects/yyyaaannn/secrets/{keyname}/versions/latest"
     response = GSM_CLIENT.access_secret_version(request={"name": name})
     return response.payload.data.decode("UTF-8")

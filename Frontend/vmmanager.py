@@ -45,24 +45,26 @@ def gcp_list_instances(zones=["europe-north1-c"]):
     return n_running, out_list
 
 
-def gcp_vm_startup(vmid, zone):
+def gcp_vm_startup(vmid, zone, keepinfo=False):
     vm_check = [x for x in GCE_CLIENT.list(project="yyyaaannn", zone=zone) if x.name == vmid]
     vm_status = [x.status for x in vm_check][0]
     vm_restricted = [x.start_restricted for x in vm_check][0]
+    info = ""
 
     if vm_status != "RUNNING":
         if vm_restricted:
             print(f"VM Manager: {vmid}({vm_status}) is restricted. Try next time.")
             return False
 
-        print(f"VM Manager: restarting {vmid} (was {vm_status})")
+        info = f"VM Manager: restarting {vmid} (was {vm_status})"
         try:
             GCE_CLIENT.start_unary(project="yyyaaannn", zone=zone, instance=vmid)
         except Exception as e:
             print(f"VM Manager: restart failed due to {str(e)}")
             return False
 
-    return True
+    if not keepinfo: print(info)
+    return True, info
 
 
 def gcp_vm_shutdown(vmid, zone):
@@ -119,17 +121,19 @@ def azure_list_instances(resource_groups=["VM-Workers"]):
     return n_running, out_list
 
 
-def azure_vm_startup(vmid, resource_group):
+def azure_vm_startup(vmid, resource_group, keepinfo=False):
     vm_status = ACE_CLIENT.virtual_machines.get(resource_group, vmid, expand='instanceView').instance_view.statuses[1].display_status
+    info = ""
     if vm_status != "VM running":
-        print(f"VM Manager: restarting {vmid} (was {vm_status.upper().replace(' ', '')})")
+        info = f"VM Manager: restarting {vmid} (was {vm_status.upper().replace(' ', '')})"
         try:
             ACE_CLIENT.virtual_machines.begin_start(resource_group, vmid)
         except Exception as e:
             print(f"VM Manager: restart failed due to {str(e)}")
             return False
     
-    return True
+    if not keepinfo: print(info)
+    return True, info
 
 
 def azure_vm_shutdown(vmid, resource_group):
@@ -186,20 +190,22 @@ def aws_list_instances(instance_ids=["i-05baaec0fe7fe4d66", "i-07a9cb47522f26bf8
 
 
 
-def aws_vm_startup(vmid, instance_id):
+def aws_vm_startup(vmid, instance_id, keepinfo=False):
 
     ec2_client = aws_get_client(instance_id)
+    info = ""
     
     vm_status = ec2_client.describe_instances(InstanceIds=[instance_id])['Reservations'][0]['Instances'][0]['State']['Name'].upper()
     if vm_status != "RUNNING":
-        print(f"VM Manager: restarting {vmid} (was {vm_status.upper().replace(' ', '')})")
+        info = f"VM Manager: restarting {vmid} (was {vm_status.upper().replace(' ', '')})"
         try:
            ec2_client.start_instances(InstanceIds=[instance_id])        
         except Exception as e:
             print(f"VM Manager: restart failed due to {str(e)}")
             return False
-    
-    return True
+
+    if not keepinfo: print(info)
+    return True, info
 
 
 def aws_vm_shutdown(vmid, instance_id):
@@ -234,16 +240,16 @@ def vm_list_all():
     return n_running1 + n_running2 + n_running3, vm_list
 
 
-def vm_startup(vmid):
-    status = False
+def vm_startup(vmid, keepinfo=False):
+    status, info = False, ""
     if vmid in GCP_VMLIST.keys():
-        status = gcp_vm_startup(vmid=vmid, zone=GCP_VMLIST[vmid])
+        status, info = gcp_vm_startup(vmid=vmid, zone=GCP_VMLIST[vmid], keepinfo=keepinfo)
     if vmid in AZURE_VMLIST.keys():
-        status = azure_vm_startup(vmid=vmid, resource_group=AZURE_VMLIST[vmid])
+        status, info = azure_vm_startup(vmid=vmid, resource_group=AZURE_VMLIST[vmid], keepinfo=keepinfo)
     if vmid in AWS_VMLIST.keys():
-        status = aws_vm_startup(vmid=vmid, instance_id=AWS_VMLIST[vmid])
+        status, info = aws_vm_startup(vmid=vmid, instance_id=AWS_VMLIST[vmid], keepinfo=keepinfo)
 
-    return status
+    return status, info
 
 def vm_shutdown(vmid):
     status = False
