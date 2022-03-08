@@ -6,7 +6,7 @@ from linehelper import *
 
 BQ_CLIENT = bigquery.Client()
 
-shorten = lambda x: " ".join(str(x).split(" ")[:3])
+shorten = lambda x: " ".join(str(x).split(" ")[:3] + ["\n >"])
 
 
 # %% 
@@ -73,7 +73,7 @@ def get_flights_drift_by_day(df_flights_final, days=1, threshold_price=10, thres
     ]
 
     row_drifts = [
-        f"(C{days}) {shorten(x[0])} {x[1]:.1f}%" 
+        f"(C{days}) {x[0]} {x[1]:.1f}%" 
         for x in monitor[["departure", "row_drift"]].values
         if abs(x[1]) > threshold_row
     ]
@@ -89,13 +89,15 @@ def send_drift(df_flights_final, df_hotels_final, msg_endpoint):
     price4f, row4f = get_flights_drift_by_day(df_flights_final, 4)
 
     msg_df = concat([
-        DataFrame({"title": "Hotel price change", "content": price4h}),
-        DataFrame({"title": "Flight price change", "content": price4f}),
+        DataFrame({"title": "-Hotel price change", "content": price4h}),
+        DataFrame({"title": "-Flight price change", "content": price4f}),
         DataFrame({"title": "Hotel vs yesterday", "content": price1h}),
         DataFrame({"title": "Flight vs yesterday", "content": price1f}),
-        DataFrame({"title": "Data quantity drifts", "content": row4h + row4f + row1h + row1f}),
+        DataFrame({"title": "_Data quantity drifts", "content": row4h + row4f + row1h + row1f}),
     ])
 
-    send_df_as_flex(df=msg_df, msg_endpoint=msg_endpoint, text="Data Drift Summary", color="#eeeeee")
+    send_df_as_flex(
+        df=msg_df, msg_endpoint=msg_endpoint, text="Data Drift Summary", 
+        color="11", size="xxs", sort=True)
 
 # %%

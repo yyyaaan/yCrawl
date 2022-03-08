@@ -91,12 +91,11 @@ def finalize_df_hotels(df_hotels, exchange_rate, upload=True):
         upload_to_bq(df_hotels_out, "hotels")
     return df_hotels_out
 
-
-
+# %%
 def send_summary(dff, dfh, msg_endpoint=False):
     dff["ddate"] = to_datetime(dff.ddate)
     dff["weekstart"] = dff.ddate.dt.to_period('W').apply(lambda r: r.start_time)
-    dff["title"] = "Flight-QR"
+    dff["title"] = "Flights to Australia on QR Business"
     flights_short = (dff
         .groupby(["title", "weekstart"], as_index=False)
         .agg(best=("eur", min))
@@ -114,7 +113,9 @@ def send_summary(dff, dfh, msg_endpoint=False):
     df_msg = concat([flights_short, hotels_short])
     df_msg['content'] = df_msg.weekstart.dt.strftime("%b-%d") + "  " + df_msg.best.astype(str)
 
-    flex_json = send_df_as_flex(df=df_msg, text="Summary for yCrawl Outputs", color="RANDOM", msg_endpoint=msg_endpoint)
+    flex_json = send_df_as_flex(df=df_msg, text="Summary for yCrawl Outputs", msg_endpoint=msg_endpoint)
 
     return flex_json
 
+
+# %%

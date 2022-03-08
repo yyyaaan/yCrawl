@@ -28,8 +28,10 @@ Messenger/
 node_modules/
 
 # local version (gunicorn wgsi)
+Frontend/geoplot.py
 main2.py
 wsgi.py
 test.py
 reqlocal.txt
 log.log
+

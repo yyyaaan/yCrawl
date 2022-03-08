@@ -42,12 +42,12 @@ def checkin():
         else: 
             ss, ii = vm_startup(the_vm, keepinfo=True)
             status.append(ss)
-            info += ii.replace("VM Manager:", "")
+            info += ii.replace("VM Manager: restarting", "")
             
     if len(message):
         print("VM Manager: no action" + message)
     if len(info):
-        print("VM Manager: " + info)
+        print("VM Manager: starting" + info)
 
     # all completed may not be catched by notify done due to async
     if n_done == len(all_servers) or determine_all_completed(caller=None, servers_required=all_servers):
@@ -146,7 +146,10 @@ def sub_logviewer():
 @app.route("/sub-vmstatus")
 def sub_vmstatus():
     _, vm_list = vm_list_all()
-    return render_template("sub-vmstatus.html", vm_status_list=vm_list)
+    if request.headers.get('X-Cloud-Trace-Context'):
+        return render_template("sub-vmstatus.html", vm_status_list=vm_list)
+    else:
+        return redirect("/sub-vmstatus-plot", code=302)
 
 
 @app.route("/overview")

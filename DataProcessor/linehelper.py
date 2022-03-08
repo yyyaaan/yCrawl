@@ -3,17 +3,23 @@ from os import getenv
 from requests import post
 from random import randint
 
-
-def send_df_as_flex(df, cols=['title', 'content'], text="info", color="RANDOM", msg_endpoint="XXX", reciever="cloud"):
+#%%
+def send_df_as_flex(df, cols=['title', 'content'], text="info", color="RANDOM", size="xs", sort=False, msg_endpoint="XXX", reciever="cloud"):
 
     msg_list = [{"title": x[0], "content": x[1]} for x in df[cols].values]
 
     titles = set([x["title"] for x in msg_list])
+    titles = sorted(list(titles)) if sort else list(titles)
     bubbles = []
     for t in titles:
+        # color [#RRGGBB, #RRGGBBAA, AA, RANDOM]        
         title_color = f"#{randint(0,255):02X}{randint(0,255):02X}{randint(0,255):02X}" \
-                if color == "RANDOM" else color
-
+                if color == "RANDOM" or len(color) == 2 else color
+        title_text_color = "#FFFFFF"
+        
+        if len(color) ==2:
+            title_color = title_color + color
+            title_text_color = "#999999"
 
         bubbles.append({
             "type": "bubble",
@@ -25,8 +31,8 @@ def send_df_as_flex(df, cols=['title', 'content'], text="info", color="RANDOM", 
                 "contents": [{
                     "type": "text",
                     "text": str(t),
-                    "size": "xs",
-                    "color": "#FFFFFF",
+                    "size": "xxs",
+                    "color": title_text_color,
                     "wrap": True
                 }]
             },
@@ -36,7 +42,7 @@ def send_df_as_flex(df, cols=['title', 'content'], text="info", color="RANDOM", 
                 "contents": [{
                         "type": "text",
                         "text": x["content"],
-                        "size": "xs",
+                        "size": size,
                         "color": "#aaaaaa",
                         "wrap": True
                     } for x in msg_list if x["title"]==t]
@@ -47,7 +53,7 @@ def send_df_as_flex(df, cols=['title', 'content'], text="info", color="RANDOM", 
     if len(msg_endpoint)>10:
         try:
             res = post(msg_endpoint, json = {
-                "AUTH": 'this is a key to authenticate ycrawl worker, coordinator and other communication. ', #getenv("AUTHKEY"), 
+                "AUTH": getenv("AUTHKEY"), 
                 "TO": reciever,
                 "TEXT": text,
                 "FLEX": flex_json

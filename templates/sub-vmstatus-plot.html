@@ -1,0 +1,40 @@
+{% extends "parentsub.html" %}
+
+{% block head %}
+{% endblock %}
+
+
+
+
+{% block content %} 
+<div class="col s12">
+    <ul class="collapsible">
+        <li class="active">
+            <div class="collapsible-header">Servers Overview</div>
+            <div class="collapsible-body">
+                <div id='chart' class='chart'”></div>
+                <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+                <script type='text/javascript'> var graphs = {{graphJSON | safe}}; Plotly.plot('chart',graphs,{});</script>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header">Computation at a Glance</div>
+            <div class="collapsible-body">
+                <form action="/vmaction" method="post">
+                    {% for vm in vm_status_list %}
+                    <p><label>
+                        <input name="VMID" value="{{vm.vmid}}" type="radio" />
+                        <span><i class="material-icons">{{vm.icon}}</i>  {{vm.header}}</span>
+                    </label></p>
+                    {% endfor %}
+                    <div class="right-align">
+                        <input type="password" name="PASS" style="width: 150px;">
+                        <button class="btn-flat" name="ACTION" value="START">START</button>
+                        <button class="btn-flat" name="ACTION" value="STOP">STOP</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+    </ul>     
+</div>
+{% endblock %}

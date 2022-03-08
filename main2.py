@@ -2,6 +2,7 @@ from os import getcwd
 from subprocess import Popen
 from Messenger.Line import send_line
 from Frontend.functions import verify_cloud_auth
+from Frontend.geoplot import *
 from main import *
 
 
@@ -12,6 +13,13 @@ from main import *
 #  | |___ >  <| ||  __/ | | | (_| |  __/ (_| | | |__| (_) | (_| (_| | |
 #  |_____/_/\_\\__\___|_| |_|\__,_|\___|\__,_| |_____\___/ \___\__,_|_|
 #######################################################################
+
+@app.route("/sub-vmstatus-plot")
+def sub_vmstatus_plot():
+    _, vm_list = vm_list_all()
+    return render_template("sub-vmstatus-plot.html", graphJSON=get_geoplot_json(vm_list), vm_status_list=vm_list)
+
+
 
 @app.route("/rundata", methods=["POST", "GET"])
 def rundata():

@@ -78,7 +78,7 @@ In worker, minimal packages are used. For example, GCP operations are hand to gs
 
 GAE has only a portion of services available. `main2` is an extension to `main`, where more localized services are included. Local version is to be deployed by `gunicorn`. The file `.gcloudignore` exclude the local versions and relevant code to be deployed in GAE.
 
-Note that GAE does not send any message.
+Note that GAE does not send any client message. Plotly and pandas are heavy (~200MB) for GAE, and therefore, plots are only available in vm deployment.
 
 ### Worker Deployment
 - Configure availability, meta-data and API access during creation
@@ -86,13 +86,22 @@ Note that GAE does not send any message.
 - Check path and python3, nodes versions
 - Confirm service account rights (bucket, secret accessor)
 
-### Head Server Deployments and Tests
+### Azure disk size concern
 
-Temporary deployment at fi-server, will be transited to smaller instances. Workload test is conducted on us-server: small memory is ok, but networking is NOT.
+Azure defaults Ubuntu image to be at least 30GB, and its managed disk cost is high (HDD charges operation fee). Use this [disk format guide](https://lev-petrushchak.medium.com/how-to-make-azure-ubuntu-linux-image-less-than-32g-in-size-e6d9a3b5f65f) and [Ubuntu official build](https://cloud-images.ubuntu.com/focal/) for customized boot disk. Process recap (Azure CLI cannot install! so, find a linux-vm with large storage >40GB). (1) apt install qemu-utils (2) get official img, link above (3) convert to vpc according to link 1 in two steps (4) upload to azure blob (5) create a disk use the blob. (6) use AZ command to create VM, and update user with SSH. Password login is not allowed.
 
-Streaming processing is time-consuming, but provides a good balance between CPU/MEM-laod; that is, local copy method would barely improve speed given limited CPU/MEM.
+```
+az vm create --resource-group yCrawl \
+    --name ycrawl-5r-ie \
+    --size Standard_F2s_v2  --location northeurope \
+    --os-type linux --attach-os-disk ycrawl-ubuntu8g-ie \
+    --priority Spot --eviction-policy Deallocate --max-price 0.019 \
+    --public-ip-address-allocation dynamic
 
-__NOTE__: ycrawl-head is not auto-updated at this moment
+az vm user update -u yan -g yCrawl -n ycrawl-5r-ie --ssh-key-value "Copy from Public Key"
+```
+
+To cross-reigion copy a disk, follow [Azure Guide](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disks-upload-vhd-to-managed-disk-powershell).
 
 ### Beautiful Soup for yCrawl notes
 

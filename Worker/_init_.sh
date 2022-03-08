@@ -71,7 +71,8 @@ gcloud config set project yyyaaannn
 gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 
 # Configuration to tell coordinator
-VMID=$HOSTNAME && echo "VMID=$HOSTNAME" | sudo tee -a /etc/environment
+XXX=ycrawl-5r-ie
+VMID=$XXX && echo "VMID=$XXX" | sudo tee -a /etc/environment
 AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")  && echo "AUTHKEY=$AUTHKEY" | sudo tee -a /etc/environment
 
 

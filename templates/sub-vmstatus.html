@@ -1,5 +1,6 @@
 {% extends "parentsub.html" %}
 
+
 {% block content %} 
 <div class="col s12">
     <ul class="collapsible popout">
@@ -15,7 +16,7 @@
                         <button class="btn-flat" name="ACTION" value="STOP">STOP</button>
                     </form>
                 </div>
-                <pre id="vm-detail" class="log-print" style="display: block;">{% autoescape false %}{{vm.content}}{% endautoescape %}</pre>
+                <pre id="vm-detail" class="log-print" style="display: none;">{% autoescape false %}{{vm.content}}{% endautoescape %}</pre>
             </div>
         </li>
         {% endfor %}
