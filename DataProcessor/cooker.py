@@ -54,15 +54,20 @@ def cook_accor(soup):
 
     nights = int((cico[1] - cico[0]).days)
 
+    # Accor sometimes report pre-tax value as Per night, formula differs
+    calc_sum = lambda a, b: a + b
+    if "per night" in soup.select_one("div.price-block__composition-info").get_text():
+        calc_sum = lambda a, b: a*nights + b
+
     json_list = [{
         "hotel": soup.select_one("h3.basket-hotel-info__title").get_text(strip=True),
         "room_type": room.select_one("h2").get_text(strip=True),
         "rate_type": [x.select_one("span").get_text(strip=True) for x in room.select(".offer__options")],
         #"rate_sum_pre": parse_floats(room.select(".offer__price")),
         #"rate_sum_tax": parse_floats(room.select(".pricing-details__taxes")),
-        "rate_avg": [(a+b)/nights for a,b in zip(parse_floats(room.select(".offer__price")), 
+        "rate_avg": [calc_sum(a,b)/nights for a,b in zip(parse_floats(room.select(".offer__price")), 
                                         parse_floats(room.select(".pricing-details__taxes")))],
-        "rate_sum": [a+b for a,b in zip(parse_floats(room.select(".offer__price")), 
+        "rate_sum": [calc_sum(a,b) for a,b in zip(parse_floats(room.select(".offer__price")), 
                                         parse_floats(room.select(".pricing-details__taxes")))],
         "ccy": parse_ccy(room.select(".offer__price")),
         "check_in": cico[0],
@@ -71,7 +76,7 @@ def cook_accor(soup):
         "vmid": soup.vmid.string,
         "ts": soup.timestamp.string
     } for room in soup.select("li.list-complete-item")]
-
+    
     # explode(["rate_type", "rate_sum", "rate_avg"])
     return json_list
 

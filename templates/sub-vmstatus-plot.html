@@ -13,6 +13,7 @@
             <div class="collapsible-header">Servers Overview</div>
             <div class="collapsible-body">
                 <div id='chart' class='chart'”></div>
+                <style>.modebar {display: none !important;}</style>
                 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
                 <script type='text/javascript'> var graphs = {{graphJSON | safe}}; Plotly.plot('chart',graphs,{});</script>
             </div>

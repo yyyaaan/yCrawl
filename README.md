@@ -3,7 +3,7 @@ My Web Crawl is a collection of daily-repetitive web scrapping tasks. Main langu
 
 For monitoring, use dedicated server is better than GAE.
 
-## Roles
+## Roles & Modules
 
 The folder structure is organized according to roles. Root folder is intended for frontend use with Coordinator and is coded with compatibility of App Engine. Subfolder Worker and DataProcessor shall be deployed separately as simple scipt.
 
@@ -62,7 +62,7 @@ flowchart LR
 
 There are huge differences among cloud services for VM status. "Terminated" for GCP, "Stopped/Deallocated" for Azure, "Stopped" for AWs. Special attention for Azure, stopped VM are still chargeable as deallocation is required, while others do not.
 
-### Security configuration
+### Security Configuration
 
 No environment key required. Secret keys are managed by cloud secret management service, and is centrally managed.
 
@@ -70,7 +70,7 @@ No environment key required. Secret keys are managed by cloud secret management 
 - VM control password controlled
 - JSON Auth-key checked before accept notice - will move to bearer
 
-## Deployment and other concepts
+## Deployment
 
 In worker, minimal packages are used. For example, GCP operations are hand to gsutil command line. AUTHKEY is managed by Cloud Secret Manager, and registered to system environment dynamically.
 
@@ -103,6 +103,17 @@ az vm user update -u yan -g yCrawl -n ycrawl-5r-ie --ssh-key-value "Copy from Pu
 
 To cross-reigion copy a disk, follow [Azure Guide](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disks-upload-vhd-to-managed-disk-powershell).
 
+## Data Management
+
+### Tables
+
+Previous version and "old" data will be sinked to "hotels_p" and "flights_p" and will be partitioned to imporved query performance. "_p" tables will only be queried when checking price history.
+
+- hotels_p is partitioned by hotel and check_in
+- flights-p is partitioned by route and ddate
+
+The live table should store data for about 3 months before move to _p tables.
+
 ### Beautiful Soup for yCrawl notes
 
 Parse bytes (instead of String) with "html.parser" to avoid excessive speical characters.
@@ -115,7 +126,7 @@ Four Seasons: [rate_sum] single json, list element.
 
 Hilton: [ccy, rate_sum] single json, list element.
 
-Marriott: [] multiple json, list element.
+Marriott: [none] multiple json, list element.
 
 
 
