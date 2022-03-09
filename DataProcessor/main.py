@@ -98,12 +98,12 @@ def assemble_dataframe(file_list):
             else:
                 raise Exception(f"\nVendor not found {vendor}")
         except Exception as e:
-            if one_soup.vmid is None or one_soup.timestamp is None:
-                print(f"VMID or timestamp mssing for file {one_filename}")
+            if one_soup.vmid is None or one_soup.qurl is None or one_soup.timestamp is None:
+                print(f"Exceptionally missing vmid/qurl/timestamp {one_filename}")
             files_exception.append({
                 "filename": one_filename, 
                 "vmid": one_soup.vmid.string if one_soup.vmid is not None else "missing VMID",
-                "uurl": ".".join(one_soup.qurl.string.split(".")[1:]),
+                "uurl": ".".join(one_soup.qurl.string.split(".")[1:]) if one_soup.qurl is not None else "",
                 "errm": str(e),
                 "ts": one_soup.timestamp.string if one_soup.vmid is not None else ""
             })
