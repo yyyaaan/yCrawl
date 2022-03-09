@@ -96,8 +96,9 @@ var out = ["<nodeinfo>ok</nodeinfo>",
             case "hilton":
                 if(DEBUG_MODE) console.log("---HLT---")
 
-                var availability = "available";
-                if(availability.toLowerCase().search('sold out') >= 0) {
+                var availability = await page.evaluate(() => document.querySelector('div.container > div.flex > div.flex-1').innerText);
+
+                if(availability.toLowerCase().search('any rooms available') >= 0) {
                     out.push("<flag>Sold Out</flag>");
                 }
                 else {
