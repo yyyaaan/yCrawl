@@ -82,6 +82,9 @@ def cook_accor(soup):
 
 
 def cook_hilton(soup):
+    if soup.flag.string != "Available":
+        raise Exception("Unavailable or sold out")
+
     # year is not printed in MOST cases
     cico = soup.select_one("[data-testid='stayDates']").get_text(strip=True).split("– ")
     the_year = cico[1].split(",")[-1]

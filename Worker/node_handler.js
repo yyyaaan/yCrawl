@@ -138,7 +138,7 @@ var out = ["<nodeinfo>ok</nodeinfo>",
 
         out[0] = '<nodeinfo>error</nodeinfo>'
         out.push(e)
-        await page.screenshot({ path: out_path + '_XXX.png'})
+        // await page.screenshot({ path: out_path + '_XXX.png'})
         filesave.writeFile(out_path + '_ERR.pp', out.join(''), function (err) {})
     }
 

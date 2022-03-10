@@ -10,34 +10,36 @@ from json import dumps
 
 def get_geoplot_json(vms):
 
-    iso_dict = {
-        "fi": "FIN", "fr": "FRA", "ie": "IRL", "se": "SWE", "pl": "POL", "nl": "NLD",
-        "processor": "EST"
-    }
-    vendor_dict = {
-        "fi": "Google", "fr": "AWS", "ie": "Azure", "se": "AWS", "pl": "Google", "nl": "Azure",
-        "processor": "Google"
+    short_dict = {
+        "fi": {"lat": 60.5693, "lon": 27.1878, "city": "Hamina, Finland", "vendor": "Google"},
+        "fr": {"lat": 48.8566, "lon": -2.3522, "city": "Paris, France", "vendor": "AWS"},
+        "ie": {"lat": 53.3498, "lon": -6.2603, "city": "Dublin, Ireland", "vendor": "Azure"},
+        "se": {"lat": 59.3293, "lon": 18.0686, "city": "Stockholm, Sweden", "vendor": "AWS"},
+        "pl": {"lat": 52.2297, "lon": 21.0122, "city": "Warsaw, Poland", "vendor": "Google"},
+        "nl": {"lat": 52.3676, "lon":  4.9041, "city": "Amsterdam, Netherlands", "vendor": "Azure"},
+        "processor": {"lat": 60.1,"lon": 25.6, "city": "Hamina, Finalnd (inaccurate position)", "vendor": "Google"},
     }
 
-    def std_status(x): return "not billed" if x in [
-        "TERMINATED", "STOPPED", "VMDEALLOCATED"] else x
+    def std_status(x): return "Ready" if x in ["TERMINATED", "STOPPED", "VMDEALLOCATED"] else x
 
     vm_short = [{
         "vmid": x["vmid"],
-        "Server-location": iso_dict[x["vmid"].split("-")[-1]],
-        "Vendor": vendor_dict[x["vmid"].split("-")[-1]],
-        "VM Status": x["header"].split(" ")[1],
-        "VM-Status": std_status(x["header"].split(" ")[1]),
-        "desc": " ".join(x["header"].split(" ")[2:])
+        "lat": short_dict[x["vmid"].split("-")[-1]]["lat"],
+        "lon": short_dict[x["vmid"].split("-")[-1]]["lon"],
+        "Vendor": short_dict[x["vmid"].split("-")[-1]]["vendor"],
+        "city": short_dict[x["vmid"].split("-")[-1]]["city"],
+        "Status": std_status(x["header"].split(" ")[1]),
+        "desc": x["header"].replace(" (", "<br>("),
     } for x in vms]
 
     fig = px.scatter_geo(
         vm_short,
-        locations="Server-location",
-        symbol="VM-Status",
+        lat="lat",
+        lon="lon",
+        symbol="Status",
         color="Vendor",
         hover_name="vmid",
-        hover_data=["desc", "VM Status"],
+        custom_data=["desc", "city"],
     )
 
     fig.update_geos(
@@ -54,7 +56,8 @@ def get_geoplot_json(vms):
         legend={"x": 0.01, "y": 0.99}
     )
     fig.update_traces(
-        marker={"size": 13}
+        marker={"size": 13},
+        hovertemplate = "%{customdata[0]}<br><br><i>%{customdata[1]}</i>"
     )
 
     return dumps(fig, cls=PlotlyJSONEncoder)
