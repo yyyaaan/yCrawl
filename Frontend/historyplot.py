@@ -63,7 +63,6 @@ def tbl_at_a_glance():
     dt = bq_client.query(QUERY).result().to_dataframe()
     return(dt[['eur', 'route', 'MonthDay']].to_html(na_rep="", sparsify=False, escape=False))
 
-if not GCF_MODE: display(HTML(tbl_at_a_glance()))
 
 # %% [markdown]
 # # Hotels
@@ -102,7 +101,6 @@ def tbl_hotel(q_checkin, q_hotel, q_room, q_rate):
     
     return outd
 
-if not GCF_MODE: display(HTML(tbl_hotel("2022-07-27", "regis", "deluxe|premier", "dining")))
 
 # %% [code] {"jupyter":{"outputs_hidden":false},"execution":{"iopub.status.busy":"2022-03-15T12:35:47.572396Z","iopub.execute_input":"2022-03-15T12:35:47.572998Z","iopub.status.idle":"2022-03-15T12:35:51.980213Z","shell.execute_reply.started":"2022-03-15T12:35:47.572952Z","shell.execute_reply":"2022-03-15T12:35:51.979121Z"}}
 def plot_hotel(q_checkin, q_hotel, q_room, q_rate):
@@ -207,7 +205,6 @@ def tbl_flight(q_route, q_ddate, q_rdate):
         
     return f"{outd}"
 
-if not GCF_MODE: display(HTML(tbl_flight("ARN MEL MEL HEL", "2022-07-11", "2022-07-30")))
 
 # %% [code] {"jupyter":{"outputs_hidden":false},"execution":{"iopub.status.busy":"2022-03-15T12:35:54.073985Z","iopub.execute_input":"2022-03-15T12:35:54.074395Z","iopub.status.idle":"2022-03-15T12:35:56.551891Z","shell.execute_reply.started":"2022-03-15T12:35:54.074354Z","shell.execute_reply":"2022-03-15T12:35:56.550757Z"}}
 def plot_flight(q_route, q_ddate, q_rdate):
