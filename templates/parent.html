@@ -35,6 +35,8 @@
         </li>
         <li><a href="https://console.cloud.google.com/logs/query?project=yyyaaannn&authuser=1"><i class="material-icons">burst_mode</i>All logs</a></li>
         <li><a href="{{ url_for('overview') }}"><i class="material-icons">layers</i>Overview</a></li>
+        <li><a href="/pricing"><i class="material-icons">attach_money</i>Pricing History</a></li>
+        <li><a href="https://datastudio.google.com/u/0/reporting/d69d4892-6779-4d66-8b38-2fee9fd00dc1/page/kE3mC"><i class="material-icons">dashboard</i>Live Dashboard</a></li>
         <li>
             <div class="divider"></div>
         </li>
@@ -72,6 +74,7 @@
             $('.tooltipped').tooltip();
             $('.sidenav').sidenav();
             $('.collapsible').collapsible({ accordion: true });
+            $('.datepicker').datepicker({ format: "yyyy-mm-dd"});
             $('.materialboxed').materialbox({
                 onOpenStart: function(e){
                 e.src = e.attributes['data-enlarge-image'].nodeValue;

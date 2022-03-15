@@ -107,12 +107,12 @@ To cross-reigion copy a disk, follow [Azure Guide](https://docs.microsoft.com/en
 
 ### Tables
 
-Previous version and "old" data will be sinked to "hotels_p" and "flights_p" and will be partitioned to imporved query performance. "_p" tables will only be queried when checking price history.
+Previous version and "old" data will be sinked to "hotelz" and "flightz" and will be partitioned to imporved query performance. "-z" tables will only be queried when checking price history. High performance with minimal resource consumption can be expected.
 
-- hotels_p is partitioned by hotel and check_in
-- flights-p is partitioned by route and ddate
+- hotelz is partitioned by check_in
+- flightz is partitioned by ddate
 
-The live table should store data for about 3 months before move to _p tables.
+The live table should store data for about 3 months before move to the partitioned z-tables.
 
 ### Beautiful Soup for yCrawl notes
 

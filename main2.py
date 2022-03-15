@@ -3,6 +3,7 @@ from subprocess import Popen
 from Messenger.Line import send_line
 from Frontend.functions import verify_cloud_auth
 from Frontend.geoplot import *
+from Frontend.historyplot import *
 from main import *
 
 
@@ -59,10 +60,18 @@ def sendline():
     except Exception as e:
         print(f"fail to send line due to {str(e)}")
         return f"{str(e)}", 400
-    
 
 
-# NOT served from Appengine, only from VM/local
+@app.route("/pricing")
+def pricing():
+    return render_template("pricing.html")
+
+@app.route("/trend")
+def trend():
+    # NOT designed to be visited directly, use pricing page
+    # this results are fully rendered in code, not using templates
+    return get_plot(request)
+
 @app.route("/xyz")
 def xyz():
     return render_template("welcome.html", header1="Extended-Service", text1="Activated local extended service mode")

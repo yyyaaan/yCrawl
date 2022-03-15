@@ -1,10 +1,11 @@
 #! /bin/bash
+# check uptimes: last reboot | less
 
 source activate base
 
 sudo apt install python3-pip python-is-python3 
 git clone https://github.com/yyyaaan/yCrawl
-sudo -h pip3 install
+sudo -H pip3 install
 
 #########################################################################
 #    ____             _                        _   _       _            
@@ -57,4 +58,4 @@ AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")  
 
 # cron job to update, restart daily - ensure date tag is correct, check `date` to ensure timezone
 nano /etc/crontab
-15 0    * * *   root    sudo systemctl stop ycrawl-head && cd /home/yan/yCrawl && git pull && sudo systemctl start ycrawl-head
+15 0    * * *   root    sudo systemctl stop ycrawl-head && cd /home/yan/yCrawl && sudo git pull && sudo systemctl start ycrawl-head

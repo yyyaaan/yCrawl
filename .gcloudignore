@@ -29,6 +29,7 @@ node_modules/
 
 # local version (gunicorn wgsi)
 Frontend/geoplot.py
+Frontend/historyplot.py
 main2.py
 wsgi.py
 test.py
