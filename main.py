@@ -26,7 +26,12 @@ def checkin():
     DATE_STR = date.today().strftime("%Y%m%d")
 
     if done_for_today():
-        print("Check-in: completion noted from file object")
+        # double check if dataprocessor is shutdown
+        info = "Check-in: completion noted from file object" 
+        if confirm_action_dataprocessor():
+            vm_shutdown(vmid=META["data-processor"][0]['name'])
+            info += "; data-processor double checked."
+        print(info)
         return "Success", 200
 
     all_servers = list(BATCH_REF.keys())

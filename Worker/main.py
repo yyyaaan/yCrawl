@@ -62,6 +62,7 @@ def main():
     
     # after one retry, will shutdown anyway
     sleep(120)
+    system("sh _shutdown_.sh lastlocal")
     urlpost(COMPLETION_ENDPOINT, json = {"VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
 
 

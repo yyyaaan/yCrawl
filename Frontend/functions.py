@@ -65,6 +65,22 @@ def determine_all_completed(caller, servers_required):
     return False
 
 
+def confirm_action_dataprocessor():
+    TODAY3 = f"{date.today().strftime('%Y-%m-%d')}T03:00:00.123456Z"
+
+    log_client = logging.Client()
+    the_filter = f'logName="projects/yyyaaannn/logs/stdout" AND timestamp>="{TODAY3}"'
+    logs_all = log_client.list_entries(filter_=the_filter, order_by=logging.DESCENDING)
+    dp_start = [x.timestamp for x in logs_all if "data endpoint requested" in x.payload]
+
+    if len(dp_start) == 0:
+        return False # no action needed
+
+    dp_elapsed = (datetime.now() - dp_start[0].replace(tzinfo=None)).total_seconds()
+    return (1800 < dp_elapsed < 3600)
+
+
+
 def verify_cloud_auth(payload, keyname="ycrawl-simple-auth"):
     if payload is None or "AUTH" not in payload.keys() or payload["AUTH"] is None:
         print("AUTH: missing authentication header")
