@@ -68,17 +68,20 @@ def gcp_vm_startup(vmid, zone, keepinfo=False):
 
 
 def gcp_vm_shutdown(vmid, zone):
-    print(f"Completion noted: shutting down {vmid}")
-    try:
-        GCE_CLIENT.stop_unary(project="yyyaaannn", zone=zone, instance=vmid)
-    except Exception as e:
-        print(f"Completion noted: shutting down failed due to {str(e)}")
-        return False
+    vm_check = [x for x in GCE_CLIENT.list(project="yyyaaannn", zone=zone) if x.name == vmid]
+    vm_status = [x.status for x in vm_check][0]
+
+    if vm_status == "RUNNING":
+        print(f"Completion noted: shutting down {vmid}")
+        try:
+            GCE_CLIENT.stop_unary(project="yyyaaannn", zone=zone, instance=vmid)
+        except Exception as e:
+            print(f"Completion noted: shutting down failed due to {str(e)}")
+            return False
+    else:
+        print(f"{vmid} is not running.")
 
     return True
-
-
-
 
 
 ############################################################################
@@ -101,6 +104,7 @@ ACE_CLIENT = ComputeManagementClient(
     ),
     SECRET['AZURE_SUBSCRIPTION_ID']
 )
+
 
 def azure_list_instances(resource_groups=["VM-Workers"]):
     out_list, n_running = [], 0
@@ -189,7 +193,6 @@ def aws_list_instances(instance_ids=["i-05baaec0fe7fe4d66", "i-07a9cb47522f26bf8
     return n_running, out_list
 
 
-
 def aws_vm_startup(vmid, instance_id, keepinfo=False):
 
     ec2_client = aws_get_client(instance_id)
@@ -251,6 +254,7 @@ def vm_startup(vmid, keepinfo=False):
 
     return status, info
 
+
 def vm_shutdown(vmid):
     status = False
     if vmid in GCP_VMLIST.keys():
@@ -261,7 +265,3 @@ def vm_shutdown(vmid):
         status = aws_vm_shutdown(vmid=vmid, instance_id=AWS_VMLIST[vmid])
 
     return status
-
-
-
-

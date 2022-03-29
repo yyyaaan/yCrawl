@@ -171,9 +171,8 @@ def overview():
         all_files = all_files,
         gss_link = f"https://console.cloud.google.com/storage/browser/{GSBUCKET}/{RUN_MODE}/{datetime.now().strftime('%Y%m/%d')}",
         gso_link = f"https://console.cloud.google.com/storage/browser/yyyaaannn-us/yCrawl_Output/{datetime.now().strftime('%Y%m')}",
-        )
+    )
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=7999, debug=True)
 
- 
