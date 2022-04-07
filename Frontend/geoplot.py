@@ -11,6 +11,7 @@ from json import dumps
 def get_geoplot_json(vms):
 
     short_dict = {
+        "csc":{"lat": 60.2055, "lon": 24.6559, "city": "Espoo, Finland", "vendor": "CSC"},
         "fi": {"lat": 60.5693, "lon": 27.1878, "city": "Hamina, Finland", "vendor": "Google"},
         "fr": {"lat": 48.8566, "lon": -2.3522, "city": "Paris, France", "vendor": "AWS"},
         "ie": {"lat": 53.3498, "lon": -6.2603, "city": "Dublin, Ireland", "vendor": "Azure"},
@@ -20,7 +21,7 @@ def get_geoplot_json(vms):
         "processor": {"lat": 60.1,"lon": 25.6, "city": "Hamina, Finalnd (inaccurate position)", "vendor": "Google"},
     }
 
-    def std_status(x): return "Ready" if x in ["TERMINATED", "STOPPED", "VMDEALLOCATED"] else x
+    def std_status(x): return "Ready" if x in ["TERMINATED", "STOPPED", "VMDEALLOCATED", "shelved_offloaded"] else x
 
     vm_short = [{
         "vmid": x["vmid"],

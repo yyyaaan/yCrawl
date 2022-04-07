@@ -1,11 +1,20 @@
 #!/bin/bash
-# dependencies installer (apt-get, pupeteer/nodejs )
-# this is a bash script for Ubuntu, changes needed for other environment
+# Unbuntu 20.04 tested. dependencies installer (apt-get, pupeteer/nodejs )
+
+# fully automated requires 1) .gcp.json 2) user created, both can be done in 3rd part tools
+# scp -i csc.pem gcp-ycrawl.json ubuntu@ip:/.gcp.json
+# scp -i csc.pem /src/_init_.sh ubuntu@ip:~/init.sh 
+
+VMID=ycrawl-8-csc
+apt-get update
+apt-get upgrade -y
 
 # add new NodeJS to repo, will run apt-update automatically
+
 curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 
-sudo apt-get install -y \
+
+apt-get install -y \
     apt-transport-https \
     ca-certificates \
     fonts-liberation \
@@ -48,9 +57,12 @@ sudo apt-get install -y \
 # one-line gcloud
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
 
+
+cd /home/yan
+
 git clone https://github.com/yyyaaan/yCrawl
 
-cd ~/yCrawl/Worker
+cd /home/yan/yCrawl/Worker
 npm install
 mkdir cache
 
@@ -71,8 +83,7 @@ gcloud config set project yyyaaannn
 gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 
 # Configuration to tell coordinator
-XXX=ycrawl-5r-ie
-VMID=$XXX && echo "VMID=$XXX" | sudo tee -a /etc/environment
+echo "VMID=$VMID" | sudo tee -a /etc/environment
 AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")  && echo "AUTHKEY=$AUTHKEY" | sudo tee -a /etc/environment
 
 

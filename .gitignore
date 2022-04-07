@@ -3,6 +3,7 @@ DataProcessor/cache/
 test.py
 .DS_Store
 log.log
+clouds.yaml
 # includes both Node and Python template
 
 # Byte-compiled / optimized / DLL files
