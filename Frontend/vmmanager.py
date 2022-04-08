@@ -36,7 +36,7 @@ def csc_list_instances(vm_names):
             continue
         out_list.append({
             "vmid": str(instance.name),
-            "header": f"{instance.name} {instance.vm_state} (CSC-nova)  {instance.flavor['original_name']}",
+            "header": f"{instance.name} {instance.vm_state} (csc_nova)  {instance.flavor['original_name']}",
             "content": dumps(str(instance)).replace("\\n", "<br/>").replace('\\"', '"')[1:-1]
         })
         if instance.status == 'active': 
@@ -50,7 +50,7 @@ def csc_vm_startup(vmid):
     vm_status = str(the_vm.vm_state)
 
     if vm_status == "active":
-        return False, f"{vmid} is already active, no action"
+        return True, ""
     try:
         openstackconn.compute.unshelve_server(the_vm)
         return True, f"restarting {vmid} (was {vm_status})"
@@ -62,7 +62,7 @@ def csc_vm_shutdown(vmid):
     the_vm = [x for x in openstackconn.compute.servers() if x.name == vmid][0]
 
     if the_vm.vm_state != "active":
-        return False, f"{vmid} is not running, no action."
+        return True, f"{vmid} is not running, no action."
     try:
         openstackconn.compute.shelve_server(the_vm)
         return True, f"shutting down {vmid}"

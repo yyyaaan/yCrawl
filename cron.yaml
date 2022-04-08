@@ -1,4 +1,4 @@
 cron:
 - description: "Check job status and manage instances"
   url: /checkin
-  schedule: every 90 minutes from 00:23 to 12:23
+  schedule: every 60 minutes from 00:23 to 11:23
