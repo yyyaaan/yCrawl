@@ -6,7 +6,6 @@
 # scp -i csc.pem /src/_init_.sh ubuntu@ip:~/init.sh 
 
 VMID=ycrawl-8-csc
-apt-get update
 apt-get upgrade -y
 
 # add new NodeJS to repo, will run apt-update automatically

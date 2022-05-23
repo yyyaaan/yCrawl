@@ -59,6 +59,7 @@ def csc_vm_startup(vmid):
 
 
 def csc_vm_shutdown(vmid):
+    print(f"Completion noted: shutting down {vmid}")
     the_vm = [x for x in openstackconn.compute.servers() if x.name == vmid][0]
 
     if the_vm.vm_state != "active":

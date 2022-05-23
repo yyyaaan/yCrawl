@@ -52,12 +52,11 @@ def send_df_as_flex(df, cols=['title', 'content'], text="info", color="RANDOM", 
     flex_json = {"type": "carousel", "contents": bubbles}
     if len(msg_endpoint)>10:
         try:
-            res = post(msg_endpoint, json = {
-                "AUTH": getenv("AUTHKEY"), 
-                "TO": reciever,
-                "TEXT": text,
-                "FLEX": flex_json
-            })
+            res = post(
+                msg_endpoint,
+                headers={"Authorization": f"Bearer {getenv('tokendata')}"},
+                json = {"to": reciever, "text": text, "flex": flex_json}
+            )
             print(f"{res.status_code} {res.text}")                
         except Exception as e:
             print(flex_json)

@@ -21,7 +21,9 @@ def on_all_completed(run_mode=RUN_MODE):
     json_to_save['file-completed'] = list_to_save
     blob.upload_from_string(dumps(json_to_save, indent=4, default=str))
     try:
-        post(META['DATA_ENDPOINT'], json = {"AUTH": get_secret("ycrawl-simple-auth"), "VMID": META["data-processor-active"]})
+        res=post(META['DATA_ENDPOINT'], json = {"AUTH": get_secret("ycrawl-simple-auth"), "VMID": META["data-processor-active"]})
+        if res.status_code != 200:
+            print(f"Data endpoint {res.status_code} {str(res.content)}")
     except Exception as e:
         print("On all completed encounted erro: " + str(e))
 
