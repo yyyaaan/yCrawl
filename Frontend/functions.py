@@ -1,6 +1,6 @@
 from config import *
 from Frontend.monitor import storage_file_viewer
-from json import dumps
+from json import dumps, loads
 from requests import post
 from datetime import datetime
 from google.cloud import logging, storage, secretmanager
@@ -21,11 +21,15 @@ def on_all_completed(run_mode=RUN_MODE):
     json_to_save['file-completed'] = list_to_save
     blob.upload_from_string(dumps(json_to_save, indent=4, default=str))
     try:
-        res=post(META['DATA_ENDPOINT'], json = {"AUTH": get_secret("ycrawl-simple-auth"), "VMID": META["data-processor-active"]})
+        res = post(
+            META["VMA_ENDPOINT"],
+            headers={"Authorization": f"Bearer {loads(get_secret('ycrawl-credentials'))['tokendata']}"},
+            json = {"event": "START", "vmids": [META["data-processor-active"]], "info": "yCrawl Head" },    
+        )
         if res.status_code != 200:
-            print(f"Data endpoint {res.status_code} {str(res.content)}")
+            print(f"VM action endpoint {res.status_code} {str(res.content)}")
     except Exception as e:
-        print("On all completed encounted erro: " + str(e))
+        print("On all completed raised error: " + str(e))
 
     print(f"Finalized crawlers job - metadata saved and data endpoint requested.")
     return True

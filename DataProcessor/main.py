@@ -177,7 +177,11 @@ if __name__ == "__main__":
     print(f"\n========= START {datetime.now().strftime('%Y-%m-%dT%X')} =========")
     main()
     print(f"\nDONE {datetime.now().strftime('%Y-%m-%dT%X')}")
-    res = post(META["DATA_ENDPOINT"], json = {"STOP": "done", "VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
+    res = post(
+        META["VMA_ENDPOINT"],
+        headers={"Authorization": f"Bearer {getenv('tokendata')}"},
+        json = {"event": "STOP", "vmids": [getenv("VMID")], "info": "Call from data processor" },    
+    )
     print(f"shutdown notice {res.status_code} {res.text}\n")
 
 
