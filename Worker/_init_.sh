@@ -84,6 +84,7 @@ gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 # Configuration to tell coordinator
 echo "VMID=$VMID" | sudo tee -a /etc/environment
 AUTHKEY=$(gcloud secrets versions access latest --secret="ycrawl-simple-auth")  && echo "AUTHKEY=$AUTHKEY" | sudo tee -a /etc/environment
+tttoken=$(gcloud secrets versions access latest --secret="ycrawl-token")  && echo "tttoken=$tttoken" | sudo tee -a /etc/environment
 
 
 

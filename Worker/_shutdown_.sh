@@ -19,3 +19,9 @@ gsutil  -q -m \
 ### zip -q -m $(date +"%Y%m%d_%H%M%S.zip") *.p*
 
 gcloud logging write y_simple_log "$VMID $1 upload to staging succeeded" --severity="INFO"
+
+# send info to my server
+curl -d '{"vmid": "'"$VMID"'", "event": "'"$1"'", "info": "upload to staging succeeded"}' \
+     -H "Content-Type: application/json"  \
+     -H "Authorization: Bearer $tttoken" \
+     -X POST https://yan.fi/ycrawl/trails/

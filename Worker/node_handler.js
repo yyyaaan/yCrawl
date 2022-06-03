@@ -6,8 +6,7 @@ const the_key = process.argv[2]
 const the_url = process.argv[3]
 
 // broswer configuration
-const max_time = 50000
-const wait_time = 2999
+const max_time = 90000
 const wait_opts = { waitUntil: 'networkidle0' }
 
 // output coordinator, ; required for asynce next

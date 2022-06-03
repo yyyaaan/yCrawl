@@ -1,30 +1,39 @@
 from os import system, getenv
 from time import sleep
 from json import loads
+from html import unescape
 from random import random
 from datetime import datetime
 from requests import post as urlpost, get as urlget
 
 
-profile = urlget("https://raw.githubusercontent.com/yyyaaan/metadata/main/ycrawl.json")
-meta = loads(profile.text)['worker-profile']
+meta = urlget ("https://yan.fi/ycrawl/configs/worker/")
+meta = loads(meta.text)
 N_PER_STAGE = meta["stage-size"]
 DELAY_TARGET = meta["delay-target"]
 COORDINATOR_ENDPOINT = meta["COORDINATOR_ENDPOINT"]
 COMPLETION_ENDPOINT = meta["COMPLETION_ENDPOINT"]
+LOGGING_ENDPOINT = "https://yan.fi/ycrawl/trails/"
 
 def get_job_list():
     sleep(50*random())
-    res = urlpost(COORDINATOR_ENDPOINT, json = {"VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
+    res = urlget(COORDINATOR_ENDPOINT, headers={"Authorization": f"Bearer {getenv('tttoken')}"}, params = {"vmid": getenv("VMID")})
+
     jobs = []
     if res.status_code not in [400, 403]:
         jobs = [x for x in res.text.split("\n") if x != ""]
     return jobs
 
 
-def printT(str):
-    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  " + str)
-    system(f'gcloud logging write y_simple_log "{str}"')
+def printT(the_str):
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  " + the_str)
+    # system(f'gcloud logging write y_simple_log "{the_str}"')
+    urlpost(
+        LOGGING_ENDPOINT, 
+        headers={"Authorization": f"Bearer {getenv('tttoken')}"}, 
+        json = {"vmid": getenv("VMID"), "event": "in progress", "info": the_str}
+    )
+
     return True
 
 
@@ -36,7 +45,7 @@ def run_with_delay(command_list, delay_factor=70):
     printT(f'{getenv("VMID")} starts assigned {nt} jobs')
 
     for command in command_list:
-        system(command + " &")
+        system(unescape(command) + " &")
         nn += 1
         if nn % N_PER_STAGE == 0:
             sleep(90)
@@ -63,8 +72,7 @@ def main():
     # after one retry, will shutdown anyway
     sleep(120)
     system("sh _shutdown_.sh lastlocal")
-    urlpost(COMPLETION_ENDPOINT, json = {"VMID": getenv("VMID"), "AUTH": getenv("AUTHKEY")})
-
+    urlpost(COMPLETION_ENDPOINT, headers={"Authorization": f"Bearer {getenv('tttoken')}"}, json = {"vmid": getenv("VMID")})
 
 
 if __name__ == "__main__":
