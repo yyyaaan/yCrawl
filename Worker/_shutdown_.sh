@@ -1,7 +1,5 @@
 #!/bin/bash
 
-gcloud logging write y_simple_log "$VMID $1" --severity="INFO"
-
 ### configure path and mode carefully
 runmode=prod1
 cd /home/yan/yCrawl/Worker/cache
@@ -17,8 +15,6 @@ gsutil  -q -m \
 
 ### archive to zip, -m remove files, -q quiet, bot png and pp
 ### zip -q -m $(date +"%Y%m%d_%H%M%S.zip") *.p*
-
-gcloud logging write y_simple_log "$VMID $1 upload to staging succeeded" --severity="INFO"
 
 # send info to my server
 curl -d '{"vmid": "'"$VMID"'", "event": "'"$1"'", "info": "upload to staging succeeded"}' \

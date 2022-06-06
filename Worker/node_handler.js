@@ -6,7 +6,7 @@ const the_key = process.argv[2]
 const the_url = process.argv[3]
 
 // broswer configuration
-const max_time = 90000
+const max_time = 70000
 const wait_opts = { waitUntil: 'networkidle0' }
 
 // output coordinator, ; required for asynce next
@@ -46,7 +46,9 @@ var out = ["<nodeinfo>ok</nodeinfo>",
                 if (DEBUG_MODE) console.log("---QR---")
 
                 await page.waitForSelector('div.flightDetail')    
-                await page.click('div.cal-btn');
+                await page.evaluate( () => {window.scrollBy(0, 150);});
+                await page.waitForTimeout(3000)
+                await page.click('a#flightDetailForm_outbound\\:calendarInitiator')
                 await page.waitForSelector('h3.csJHeadDeprt');
                 
                 out.push('<exetime>' + (new Date() - exe_start)/1000 + '</exetime>\n');
