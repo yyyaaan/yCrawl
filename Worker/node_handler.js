@@ -24,7 +24,7 @@ var out = ["<nodeinfo>ok</nodeinfo>",
     const browser = await puppeteer.launch({
         headless: true,
         ignoreHTTPSErrors: true,
-        defaultViewport: { width: 1080, height: 1330 },
+        defaultViewport: { width: 1680, height: 800 },
         args: ['--no-sandbox']
     });
     const page = await browser.newPage();
@@ -48,7 +48,18 @@ var out = ["<nodeinfo>ok</nodeinfo>",
                 await page.waitForSelector('div.flightDetail')    
                 await page.evaluate( () => {window.scrollBy(0, 150);});
                 await page.waitForTimeout(3000)
+                // cookie accept
+                let cookie_asked = await page.evaluate(() => {
+                    let el = document.querySelector("#cookieContainer")
+                    return el ? true : false
+                })
+                if (cookie_asked) {
+                    await page.click("a#cookie-close-accept-all")
+                    await page.waitForTimeout(2000)
+                }
+
                 await page.click('a#flightDetailForm_outbound\\:calendarInitiator')
+                console.log("click ok")
                 await page.waitForSelector('h3.csJHeadDeprt');
                 
                 out.push('<exetime>' + (new Date() - exe_start)/1000 + '</exetime>\n');
