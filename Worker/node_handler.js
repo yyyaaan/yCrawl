@@ -96,7 +96,7 @@ var out = ["<nodeinfo>ok</nodeinfo>",
                 }
                 else {
                     out.push("<flag>Available</flag>");
-                    await page.click('a.js-view-rate-btn-link.analytics-click.l-float-right');
+                    await page.click('div#merch-property-results > div > div > div > div.js-rate-btn-container > div > div');
                     await page.waitForSelector('#roomRatesSelectionForm');
                     out.push(await page.evaluate(() => document.querySelector('#staydates').outerHTML));
                     out.push(await page.evaluate(() => document.querySelector('h1').outerHTML));
