@@ -87,20 +87,25 @@ var out = ["<nodeinfo>ok</nodeinfo>",
             case "marriott":
                 if (DEBUG_MODE) console.log("---MRT---")
 
+                const selectorArea = 'div.search-form-container > div > div > div > div > div.container.property-card-outer-container.pr-0 > div > div:nth-child(1) > div > div > div.color-scheme1.text-container > div.lower-section';
                 await page.click('#advanced-search-form > div > div.l-s-col-4.l-xl-col-2.l-xl-last-col.l-hsearch-find > button');
-                await page.waitForSelector('#main-body-wrapper');
+                await page.waitForSelector('div.search-form-container');
+                await page.waitForSelector('div.property-card-container');
+                await page.waitForSelector(selectorArea);
 
-                var availability = await page.evaluate(() => document.querySelector('div.js-rate-btn-container').innerText);
-                if (availability.toLowerCase().search('sold out') >= 0) {
-                    out.push("<flag>Sold Out</flag>")
+                var availability = await page.evaluate((selectorArea) => {
+                    const element = document.querySelector(selectorArea);
+                    return element ? element.innerText : 'selector empty';
+                  }, selectorArea);
+
+                if (availability.toLowerCase().search('unavailable') >= 0) {
+                    out.push("<flag>Sold Out</flag><content>" + availability + "</content>")
                 }
                 else {
                     out.push("<flag>Available</flag>");
-                    await page.click('div#merch-property-results > div > div > div > div.js-rate-btn-container > div > div');
-                    await page.waitForSelector('#roomRatesSelectionForm');
-                    out.push(await page.evaluate(() => document.querySelector('#staydates').outerHTML));
-                    out.push(await page.evaluate(() => document.querySelector('h1').outerHTML));
-                    out.push(await page.evaluate(() => document.querySelector('#room-rate-container').innerHTML));
+                    await page.click(selectorArea + ' > div.price-container > a > button');
+                    await page.waitForSelector('div.rate-content-container');
+                    out.push(await page.evaluate(() => document.querySelector('body').outerHTML));
                 }
                 break
 
